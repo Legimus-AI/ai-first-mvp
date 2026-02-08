@@ -438,6 +438,50 @@ describe('${SLICE} routes', () => {
 })
 TMPL
 
+# --- 7. Contract test (verifier-first — NO DB required) ---
+cat > "$API_TESTS_DIR/routes.contract.test.ts" << TMPL
+/**
+ * Contract test for ${SLICE} — verifier-first architecture.
+ * Verifies all required CRUD endpoints exist in OpenAPI spec.
+ * NO database needed. Runs in < 1 second.
+ *
+ * If this test FAILS, it means an endpoint was removed or never implemented.
+ * Fix: add the missing route in routes.ts and register in app.ts.
+ */
+import { describe, expect, it } from 'vitest'
+import { createApp } from '../../../app'
+import { crudOperations, formatMissing, verifyOpenApiPaths } from '../../../lib/contract-testing'
+
+const app = createApp()
+const doc = app.getOpenAPIDocument({
+	openapi: '3.0.0',
+	info: { title: 'Contract Test', version: '0.0.0' },
+})
+
+describe('${SLICE} route contracts', () => {
+	const ops = crudOperations('/api/${SLICE}')
+
+	it('has all 6 required CRUD endpoints', () => {
+		const { missing } = verifyOpenApiPaths(doc, ops)
+		if (missing.length > 0) {
+			expect.fail(formatMissing('${SLICE}', missing))
+		}
+	})
+
+	it.each([
+		['LIST', 'get', '/api/${SLICE}'],
+		['GET', 'get', '/api/${SLICE}/{id}'],
+		['CREATE', 'post', '/api/${SLICE}'],
+		['UPDATE', 'patch', '/api/${SLICE}/{id}'],
+		['DELETE', 'delete', '/api/${SLICE}/{id}'],
+		['BULK_DELETE', 'delete', '/api/${SLICE}/bulk'],
+	])('%s endpoint exists (%s %s)', (label, method, path) => {
+		const { missing } = verifyOpenApiPaths(doc, [{ method, path, label }])
+		expect(missing).toHaveLength(0)
+	})
+})
+TMPL
+
 echo ""
 echo "Slice '$SLICE' generated (entity: $SINGULAR). Next steps:"
 echo "  1. Edit schemas:   packages/shared/src/slices/$SLICE/schemas.ts"
@@ -449,4 +493,5 @@ echo "  6. Register route:  apps/api/src/app.ts → app.route('/api/$SLICE', ${S
 echo "  7. Build UI:        apps/web/src/slices/$SLICE/components/"
 echo "  8. Run:             pnpm db:generate && pnpm db:migrate"
 echo "  9. Complete tests:  apps/api/src/slices/$SLICE/__tests__/routes.test.ts"
-echo " 10. Verify:          pnpm verify"
+echo " 10. Contracts:       pnpm validate:contracts (runs automatically in pnpm verify)"
+echo " 11. Verify:          pnpm verify"

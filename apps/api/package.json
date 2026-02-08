@@ -11,6 +11,7 @@
 		"dev": "bun --env-file=../../.env --watch src/main.ts",
 		"start": "bun --env-file=../../.env src/main.ts",
 		"test": "vitest run",
+		"test:contracts": "vitest run src/__tests__/contracts.test.ts",
 		"test:watch": "vitest",
 		"typecheck": "tsc --noEmit",
 		"db:generate": "drizzle-kit generate",
