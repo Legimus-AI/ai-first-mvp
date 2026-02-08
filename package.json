@@ -1,0 +1,35 @@
+{
+	"name": "ai-first-mvp",
+	"private": true,
+	"scripts": {
+		"dev:api": "pnpm --filter @repo/api dev",
+		"dev:web": "pnpm --filter @repo/web dev",
+		"dev": "pnpm run --parallel dev:api dev:web",
+		"build": "pnpm --filter @repo/web build",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"format": "biome format --write .",
+		"test": "pnpm --filter @repo/shared test && pnpm --filter @repo/api test && pnpm --filter @repo/web test",
+		"test:fast": "pnpm --filter @repo/shared test && pnpm --filter @repo/api test && pnpm --filter @repo/web test",
+		"verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm validate:generator",
+		"typecheck": "pnpm -r typecheck",
+		"db:generate": "pnpm --filter @repo/api db:generate",
+		"db:migrate": "pnpm --filter @repo/api db:migrate",
+		"db:seed": "pnpm --filter @repo/api db:seed",
+		"generate:slice": "./scripts/generate-slice.sh",
+		"validate:generator": "./scripts/validate-generator.sh",
+		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui",
+		"prepare": "lefthook install"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.0",
+		"@playwright/test": "^1.58.2",
+		"lefthook": "^2.1.0",
+		"typescript": "^5.7.0"
+	},
+	"engines": {
+		"node": ">=20.0.0"
+	},
+	"packageManager": "pnpm@9.15.0"
+}

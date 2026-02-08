@@ -1,0 +1,15 @@
+# Default owner for all files
+* @Legimus-AI/core
+
+# Shared schemas — changes here affect the entire stack
+packages/shared/ @Legimus-AI/core
+
+# Infrastructure and CI
+.github/ @Legimus-AI/core
+docker/ @Legimus-AI/core
+docker-compose.yml @Legimus-AI/core
+
+# Governance files — require explicit review
+INVARIANTS.md @Legimus-AI/core
+AGENTS.md @Legimus-AI/core
+ARCHITECTURE.md @Legimus-AI/core

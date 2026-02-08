@@ -1,0 +1,25 @@
+{
+	"name": "AI First Skeleton",
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+	"features": {
+		"ghcr.io/shyim/devcontainers-features/bun:0": {},
+		"ghcr.io/devcontainers-contrib/features/pnpm:2": {}
+	},
+	"service": "app",
+	"forwardPorts": [3000, 5173, 5432],
+	"postCreateCommand": "pnpm install && docker compose up -d && pnpm db:migrate",
+	"customizations": {
+		"vscode": {
+			"extensions": ["biomejs.biome", "bradlc.vscode-tailwindcss"],
+			"settings": {
+				"editor.defaultFormatter": "biomejs.biome",
+				"editor.formatOnSave": true
+			}
+		}
+	},
+	"containerEnv": {
+		"DATABASE_URL": "postgresql://skeleton:skeleton@db:5432/skeleton",
+		"API_PORT": "3000",
+		"CORS_ORIGIN": "http://localhost:5173"
+	}
+}
