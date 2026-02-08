@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { botSchema, createBotSchema, updateBotSchema } from '../slices/bots/schemas'
+import { botSchema, createBotSchema } from '../slices/bots/schemas'
 import { chatRequestSchema, chatResponseSchema } from '../slices/conversations/schemas'
-import { createDocumentSchema, documentSchema } from '../slices/documents/schemas'
-import { createLeadSchema, leadSchema } from '../slices/leads/schemas'
+import { documentSchema } from '../slices/documents/schemas'
+import { leadSchema } from '../slices/leads/schemas'
 import { createUserSchema, loginSchema, userSchema } from '../slices/users/schemas'
 
 describe('userSchema', () => {

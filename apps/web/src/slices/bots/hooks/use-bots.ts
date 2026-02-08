@@ -1,6 +1,6 @@
 import { getApiClient } from '@/lib/api-client'
 import { throwIfNotOk } from '@/lib/api-error'
-import type { Bot, CreateBot, ListQuery, UpdateBot } from '@repo/shared'
+import type { CreateBot, ListQuery, UpdateBot } from '@repo/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
@@ -9,7 +9,7 @@ export function useBots(query?: Partial<ListQuery>) {
 		queryKey: ['bots', query],
 		queryFn: async () => {
 			const api = getApiClient()
-			const res = await api.api.bots.$get({ query: query as any })
+			const res = await api.api.bots.$get({ query: query as Record<string, string> })
 			await throwIfNotOk(res)
 			return res.json()
 		},

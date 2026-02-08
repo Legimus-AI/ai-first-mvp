@@ -11,13 +11,10 @@ export const listQuerySchema = z
 			.string()
 			.optional()
 			.openapi({ example: '51983724476', description: 'Value to search for in specific columns' }),
-		filterFields: z
-			.string()
-			.optional()
-			.openapi({
-				example: 'name,email,phone',
-				description: 'Comma-separated column names to search in (used with filterValue)',
-			}),
+		filterFields: z.string().optional().openapi({
+			example: 'name,email,phone',
+			description: 'Comma-separated column names to search in (used with filterValue)',
+		}),
 		sort: z.string().optional().openapi({ example: 'createdAt' }),
 		order: z.enum(['asc', 'desc']).default('desc').openapi({ example: 'desc' }),
 	})

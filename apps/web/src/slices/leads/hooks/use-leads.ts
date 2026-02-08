@@ -9,7 +9,7 @@ export function useLeads(query?: Partial<ListQuery & { botId?: string }>) {
 		queryKey: ['leads', query],
 		queryFn: async () => {
 			const api = getApiClient()
-			const res = await api.api.leads.$get({ query: query as any })
+			const res = await api.api.leads.$get({ query: query as Record<string, string> })
 			await throwIfNotOk(res)
 			return res.json()
 		},

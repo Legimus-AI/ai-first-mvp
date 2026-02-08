@@ -3,6 +3,7 @@ import { type InferSelectModel, type SQL, and, asc, count, desc, ilike, or } fro
 import type { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core'
 import type { getDb } from '../db/client'
 
+// biome-ignore lint/suspicious/noExplicitAny: Drizzle's PgTableWithColumns generic requires `any` — no narrower type works for the generic constraint
 interface PaginatedListConfig<TTable extends PgTableWithColumns<any>> {
 	/** Drizzle table object */
 	table: TTable
@@ -16,6 +17,7 @@ interface PaginatedListConfig<TTable extends PgTableWithColumns<any>> {
 	extraWhere?: SQL
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: Drizzle generic constraint (see above)
 export async function paginatedList<TTable extends PgTableWithColumns<any>>(
 	db: ReturnType<typeof getDb>,
 	query: ListQuery,
