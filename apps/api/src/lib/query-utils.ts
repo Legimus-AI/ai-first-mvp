@@ -8,13 +8,13 @@ interface PaginatedListConfig<TTable extends PgTableWithColumns<any>> {
 	/** Drizzle table object */
 	table: TTable
 	/** Columns to search with ilike when query.search is provided */
-	searchColumns?: PgColumn[]
+	searchColumns?: PgColumn[] | undefined
 	/** Whitelist of sortable/filterable columns — keys are query param names, values are column refs */
 	sortColumns: Record<string, PgColumn>
 	/** Default sort column key (must exist in sortColumns) */
-	defaultSort?: string
+	defaultSort?: string | undefined
 	/** Additional WHERE condition (e.g., eq(table.botId, botId)) */
-	extraWhere?: SQL
+	extraWhere?: SQL | undefined
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Drizzle generic constraint (see above)

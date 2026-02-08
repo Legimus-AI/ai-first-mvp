@@ -64,7 +64,9 @@ Run `pnpm generate:slice <name>` to scaffold, then:
 
 - **Read `INVARIANTS.md`** before making changes — these rules must never be broken
 - **Schema-first:** Change the Zod schema first, then everything else follows
-- **No `any`:** Use Zod inference (`z.infer<typeof schema>`) for all types
+- **No `any`:** Use Zod inference (`z.infer<typeof schema>`) for all types. The ONLY escape: `biome-ignore` with library name and reason.
+- **No `process.env`:** Import typed config from `apps/api/src/env.ts`. Only `main.ts` and `seed.ts` may access `process.env` directly.
+- **No type assertions:** Never use `as any`, `as unknown as T`, or `as SomeType`. Use `satisfies` and `as const` instead. For Hono RPC query params, use `as Record<string, string>`.
 - **Functional core:** Services are pure functions. No side effects in business logic.
 - **Imperative shell:** Only `main.ts` may use runtime-specific APIs (no `Bun.*`/`Deno.*`/`process.*` elsewhere)
 - **Slice isolation:** A slice may import from `@repo/shared` and its own slice only

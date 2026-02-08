@@ -222,16 +222,20 @@ Validated at startup via `src/env.ts` (Zod schema). App crashes immediately if r
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `DATABASE_URL` | Yes | — | PostgreSQL connection string |
-| `API_PORT` | No | 3000 | Server port |
-| `CORS_ORIGIN` | No | `http://localhost:5173` | Comma-separated allowed origins |
-| `JWT_SECRET` | No | — | Enables JWT auth if set |
+| `REDIS_URL` | Yes | — | Redis connection string |
+| `JWT_SECRET` | Yes | — | JWT signing secret |
+| `GEMINI_API_KEY` | Yes | — | Google Gemini API key |
+| `API_PORT` | No | 3001 | Server port |
+| `CORS_ORIGIN` | No | `http://localhost:5174` | Comma-separated allowed origins |
 
 ## Do NOT
 
 - Use runtime-specific APIs (`Bun.*`, `Deno.*`, `process.*`) outside of `main.ts`
+- Use `process.env` directly — import typed config from `env.ts`
 - Import from `@repo/web`
 - Put business logic in route handlers
-- Use `any` — use Zod inference for types
+- Use `any` — use Zod inference for types. Only escape: `biome-ignore` with library name and reason
+- Use type assertions (`as any`, `as unknown as T`, `as SomeType`) — use `satisfies` and `as const` instead
 - Return manual error JSON — use `AppError` factories
 - Skip pagination on list endpoints — always use `ListQuerySchema`
 - Use `.defaultRandom()` (UUIDv4) for primary keys — always use `.default(sql\`uuidv7()\`)` for time-sorted, index-friendly IDs

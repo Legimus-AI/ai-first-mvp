@@ -46,10 +46,10 @@ app.openapi(registerRoute, async (c) => {
 
 	const user = await register(db, data)
 
-	// NOTE: Using process.env here is an exception to the isomorphic code rule.
-	// Auth service is backend-only and will never run in a browser.
-	// JWT_SECRET is required by env validation, guaranteed to be present.
-	const jwtSecret = process.env.JWT_SECRET as string
+	const jwtSecret = c.get('jwtSecret')
+	if (!jwtSecret) {
+		throw AppError.internal('JWT secret not configured')
+	}
 
 	const token = await generateToken(user, jwtSecret)
 
@@ -100,10 +100,10 @@ app.openapi(loginRoute, async (c) => {
 
 	const user = await login(db, email, password)
 
-	// NOTE: Using process.env here is an exception to the isomorphic code rule.
-	// Auth service is backend-only and will never run in a browser.
-	// JWT_SECRET is required by env validation, guaranteed to be present.
-	const jwtSecret = process.env.JWT_SECRET as string
+	const jwtSecret = c.get('jwtSecret')
+	if (!jwtSecret) {
+		throw AppError.internal('JWT secret not configured')
+	}
 
 	const token = await generateToken(user, jwtSecret)
 

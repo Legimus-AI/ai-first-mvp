@@ -23,7 +23,8 @@
 				"useConst": "error"
 			},
 			"suspicious": {
-				"noExplicitAny": "error"
+				"noExplicitAny": "error",
+				"noImplicitAnyLet": "error"
 			}
 		}
 	},

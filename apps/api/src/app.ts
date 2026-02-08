@@ -17,8 +17,8 @@ import { leadsRoutes } from './slices/leads/routes'
 import { usersRoutes } from './slices/users/routes'
 
 export interface AppConfig {
-	corsOrigin?: string
-	jwtSecret?: string
+	corsOrigin?: string | undefined
+	jwtSecret?: string | undefined
 }
 
 export function createApp(config: AppConfig = {}): OpenAPIHono {
@@ -41,10 +41,15 @@ export function createApp(config: AppConfig = {}): OpenAPIHono {
 	)
 
 	if (config.jwtSecret) {
+		const secret = config.jwtSecret
+		app.use('*', async (c, next) => {
+			c.set('jwtSecret', secret)
+			await next()
+		})
 		app.use(
 			'*',
 			authGuard({
-				secret: config.jwtSecret,
+				secret,
 				exclude: ['/health', '/doc', '/ui', '/api/chat', '/api/auth'],
 			}),
 		)
