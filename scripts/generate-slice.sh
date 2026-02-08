@@ -124,11 +124,12 @@ TMPL
 # --- 3. API service (pure business logic with pagination) ---
 cat > "$API_DIR/service.ts" << TMPL
 import type { Create${SINGULAR_PASCAL}, ListQuery, Update${SINGULAR_PASCAL} } from '@repo/shared'
-import { buildPaginationMeta } from '@repo/shared'
-import { getDb } from '../../db/client'
+import { AppError, buildPaginationMeta } from '@repo/shared'
+import type { getDb } from '../../db/client'
 
-export async function list${PLURAL_PASCAL}(query: ListQuery) {
-	const db = getDb()
+type Db = ReturnType<typeof getDb>
+
+export async function list${PLURAL_PASCAL}(db: Db, query: ListQuery) {
 	const { page, limit } = query
 	const offset = (page - 1) * limit
 	// TODO: implement with Drizzle query + count
@@ -137,45 +138,58 @@ export async function list${PLURAL_PASCAL}(query: ListQuery) {
 	return { data: rows, meta: buildPaginationMeta(query, total) }
 }
 
-export async function get${SINGULAR_PASCAL}(id: string) {
-	const db = getDb()
+export async function get${SINGULAR_PASCAL}ById(db: Db, id: string) {
+	// TODO: implement
+	throw AppError.notFound('${SINGULAR_PASCAL} not found')
+}
+
+export async function create${SINGULAR_PASCAL}(db: Db, input: Create${SINGULAR_PASCAL}) {
 	// TODO: implement
 	return null
 }
 
-export async function create${SINGULAR_PASCAL}(input: Create${SINGULAR_PASCAL}) {
-	const db = getDb()
+export async function update${SINGULAR_PASCAL}(db: Db, id: string, input: Update${SINGULAR_PASCAL}) {
 	// TODO: implement
-	return null
+	throw AppError.notFound('${SINGULAR_PASCAL} not found')
 }
 
-export async function update${SINGULAR_PASCAL}(id: string, input: Update${SINGULAR_PASCAL}) {
-	const db = getDb()
+export async function delete${SINGULAR_PASCAL}(db: Db, id: string) {
 	// TODO: implement
-	return null
+	throw AppError.notFound('${SINGULAR_PASCAL} not found')
 }
 
-export async function delete${SINGULAR_PASCAL}(id: string) {
-	const db = getDb()
+export async function bulkDelete${PLURAL_PASCAL}(db: Db, ids: string[]) {
 	// TODO: implement
-	return null
+	return { deleted: 0 }
 }
 TMPL
 
 # --- 3. API routes (OpenAPIHono + createRoute + AppError) ---
 cat > "$API_DIR/routes.ts" << TMPL
-import { OpenAPIHono, createRoute } from '@hono/zod-openapi'
+import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import {
 	AppError,
+	bulkDeleteResponseSchema,
+	bulkDeleteSchema,
 	create${SINGULAR_PASCAL}Schema,
-	errorResponseSchema,
 	listQuerySchema,
-	${SINGULAR}IdParamSchema,
+	${SINGULAR}Schema,
 	${SINGULAR}ListResponseSchema,
 	${SINGULAR}ResponseSchema,
 	update${SINGULAR_PASCAL}Schema,
 } from '@repo/shared'
+import { getDb } from '../../db/client'
+import { AUTH_ERRORS, errorResponses } from '../../lib/openapi-errors'
 import * as service from './service'
+
+const app = new OpenAPIHono()
+
+const idParamSchema = z.object({
+	id: z
+		.string()
+		.uuid()
+		.openapi({ param: { name: 'id', in: 'path' } }),
+})
 
 // --- Route definitions (contracts) ---
 
@@ -190,7 +204,41 @@ const list${PLURAL_PASCAL}Route = createRoute({
 			content: { 'application/json': { schema: ${SINGULAR}ListResponseSchema } },
 			description: 'Paginated list of ${SLICE}',
 		},
+		...AUTH_ERRORS,
 	},
+})
+
+app.openapi(list${PLURAL_PASCAL}Route, async (c) => {
+	const query = c.req.valid('query')
+	const db = getDb()
+	const result = await service.list${PLURAL_PASCAL}(db, query)
+	return c.json(result)
+})
+
+// DELETE /bulk (must be before /{id} to avoid path collision)
+const bulkDelete${PLURAL_PASCAL}Route = createRoute({
+	method: 'delete',
+	path: '/bulk',
+	tags: ['${PLURAL_PASCAL}'],
+	summary: 'Bulk delete ${SLICE}',
+	request: {
+		body: { content: { 'application/json': { schema: bulkDeleteSchema } } },
+	},
+	responses: {
+		200: {
+			content: { 'application/json': { schema: bulkDeleteResponseSchema } },
+			description: 'Bulk delete result',
+		},
+		...errorResponses(400),
+		...AUTH_ERRORS,
+	},
+})
+
+app.openapi(bulkDelete${PLURAL_PASCAL}Route, async (c) => {
+	const { ids } = c.req.valid('json')
+	const db = getDb()
+	const result = await service.bulkDelete${PLURAL_PASCAL}(db, ids)
+	return c.json(result)
 })
 
 const get${SINGULAR_PASCAL}Route = createRoute({
@@ -198,17 +246,22 @@ const get${SINGULAR_PASCAL}Route = createRoute({
 	path: '/{id}',
 	tags: ['${PLURAL_PASCAL}'],
 	summary: 'Get a ${SINGULAR} by ID',
-	request: { params: ${SINGULAR}IdParamSchema },
+	request: { params: idParamSchema },
 	responses: {
 		200: {
-			content: { 'application/json': { schema: ${SINGULAR}ResponseSchema } },
-			description: '${SINGULAR_PASCAL} found',
+			content: { 'application/json': { schema: ${SINGULAR}Schema } },
+			description: '${SINGULAR_PASCAL} details',
 		},
-		404: {
-			content: { 'application/json': { schema: errorResponseSchema } },
-			description: '${SINGULAR_PASCAL} not found',
-		},
+		...errorResponses(404),
+		...AUTH_ERRORS,
 	},
+})
+
+app.openapi(get${SINGULAR_PASCAL}Route, async (c) => {
+	const { id } = c.req.valid('param')
+	const db = getDb()
+	const item = await service.get${SINGULAR_PASCAL}ById(db, id)
+	return c.json(item)
 })
 
 const create${SINGULAR_PASCAL}Route = createRoute({
@@ -221,31 +274,46 @@ const create${SINGULAR_PASCAL}Route = createRoute({
 	},
 	responses: {
 		201: {
-			content: { 'application/json': { schema: ${SINGULAR}ResponseSchema } },
+			content: { 'application/json': { schema: ${SINGULAR}Schema } },
 			description: '${SINGULAR_PASCAL} created',
 		},
+		...errorResponses(400),
+		...AUTH_ERRORS,
 	},
 })
 
+app.openapi(create${SINGULAR_PASCAL}Route, async (c) => {
+	const input = c.req.valid('json')
+	const db = getDb()
+	const item = await service.create${SINGULAR_PASCAL}(db, input)
+	return c.json(item, 201)
+})
+
 const update${SINGULAR_PASCAL}Route = createRoute({
-	method: 'put',
+	method: 'patch',
 	path: '/{id}',
 	tags: ['${PLURAL_PASCAL}'],
 	summary: 'Update a ${SINGULAR}',
 	request: {
-		params: ${SINGULAR}IdParamSchema,
+		params: idParamSchema,
 		body: { content: { 'application/json': { schema: update${SINGULAR_PASCAL}Schema } }, required: true },
 	},
 	responses: {
 		200: {
-			content: { 'application/json': { schema: ${SINGULAR}ResponseSchema } },
+			content: { 'application/json': { schema: ${SINGULAR}Schema } },
 			description: '${SINGULAR_PASCAL} updated',
 		},
-		404: {
-			content: { 'application/json': { schema: errorResponseSchema } },
-			description: '${SINGULAR_PASCAL} not found',
-		},
+		...errorResponses(400, 404),
+		...AUTH_ERRORS,
 	},
+})
+
+app.openapi(update${SINGULAR_PASCAL}Route, async (c) => {
+	const { id } = c.req.valid('param')
+	const input = c.req.valid('json')
+	const db = getDb()
+	const item = await service.update${SINGULAR_PASCAL}(db, id, input)
+	return c.json(item)
 })
 
 const delete${SINGULAR_PASCAL}Route = createRoute({
@@ -253,51 +321,24 @@ const delete${SINGULAR_PASCAL}Route = createRoute({
 	path: '/{id}',
 	tags: ['${PLURAL_PASCAL}'],
 	summary: 'Delete a ${SINGULAR}',
-	request: { params: ${SINGULAR}IdParamSchema },
+	request: { params: idParamSchema },
 	responses: {
-		200: {
-			content: { 'application/json': { schema: ${SINGULAR}ResponseSchema } },
-			description: 'Deleted ${SINGULAR}',
+		204: {
+			description: '${SINGULAR_PASCAL} deleted',
 		},
-		404: {
-			content: { 'application/json': { schema: errorResponseSchema } },
-			description: '${SINGULAR_PASCAL} not found',
-		},
+		...errorResponses(404),
+		...AUTH_ERRORS,
 	},
 })
 
-// --- Handlers ---
+app.openapi(delete${SINGULAR_PASCAL}Route, async (c) => {
+	const { id } = c.req.valid('param')
+	const db = getDb()
+	await service.delete${SINGULAR_PASCAL}(db, id)
+	return c.body(null, 204)
+})
 
-export const ${SLICE}Routes = new OpenAPIHono()
-	.openapi(list${PLURAL_PASCAL}Route, async (c) => {
-		const query = c.req.valid('query')
-		const result = await service.list${PLURAL_PASCAL}(query)
-		return c.json(result, 200)
-	})
-	.openapi(get${SINGULAR_PASCAL}Route, async (c) => {
-		const { id } = c.req.valid('param')
-		const item = await service.get${SINGULAR_PASCAL}(id)
-		if (!item) throw AppError.notFound('${SINGULAR_PASCAL} not found')
-		return c.json({ data: item }, 200)
-	})
-	.openapi(create${SINGULAR_PASCAL}Route, async (c) => {
-		const input = c.req.valid('json')
-		const item = await service.create${SINGULAR_PASCAL}(input)
-		return c.json({ data: item }, 201)
-	})
-	.openapi(update${SINGULAR_PASCAL}Route, async (c) => {
-		const { id } = c.req.valid('param')
-		const input = c.req.valid('json')
-		const item = await service.update${SINGULAR_PASCAL}(id, input)
-		if (!item) throw AppError.notFound('${SINGULAR_PASCAL} not found')
-		return c.json({ data: item }, 200)
-	})
-	.openapi(delete${SINGULAR_PASCAL}Route, async (c) => {
-		const { id } = c.req.valid('param')
-		const item = await service.delete${SINGULAR_PASCAL}(id)
-		if (!item) throw AppError.notFound('${SINGULAR_PASCAL} not found')
-		return c.json({ data: item }, 200)
-	})
+export { app as ${SLICE}Routes }
 TMPL
 
 # --- 4. Web hooks (Hono RPC + TanStack Query + throwIfNotOk) ---
@@ -337,7 +378,7 @@ export function useUpdate${SINGULAR_PASCAL}() {
 	const queryClient = useQueryClient()
 	return useMutation({
 		mutationFn: async ({ id, ...input }: Update${SINGULAR_PASCAL} & { id: string }) => {
-			const res = await api.api.${SLICE}[':id'].\$put({ param: { id }, json: input })
+			const res = await api.api.${SLICE}[':id'].\$patch({ param: { id }, json: input })
 			await throwIfNotOk(res)
 			return res.json()
 		},
@@ -350,6 +391,17 @@ export function useDelete${SINGULAR_PASCAL}() {
 	return useMutation({
 		mutationFn: async (id: string) => {
 			const res = await api.api.${SLICE}[':id'].\$delete({ param: { id } })
+			await throwIfNotOk(res)
+		},
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: KEY }),
+	})
+}
+
+export function useBulkDelete${PLURAL_PASCAL}() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: async (ids: string[]) => {
+			const res = await api.api.${SLICE}.bulk.\$delete({ json: { ids } })
 			await throwIfNotOk(res)
 			return res.json()
 		},

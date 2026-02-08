@@ -47,8 +47,10 @@ check_pattern "$ROUTES" "OpenAPIHono" "routes: OpenAPIHono"
 check_pattern "$ROUTES" "createRoute" "routes: createRoute()"
 check_pattern "$ROUTES" ".openapi(" "routes: .openapi() handler"
 check_pattern "$ROUTES" "@repo/shared" "routes: imports from @repo/shared"
-check_pattern "$ROUTES" "errorResponseSchema" "routes: error response schema"
-check_pattern "$ROUTES" "AppError" "routes: uses AppError for errors"
+check_pattern "$ROUTES" "errorResponses" "routes: uses errorResponses() helper"
+check_pattern "$ROUTES" "AUTH_ERRORS" "routes: uses AUTH_ERRORS for middleware errors"
+check_pattern "$ROUTES" "openapi-errors" "routes: imports from openapi-errors"
+check_pattern "$ROUTES" "bulkDeleteSchema" "routes: has bulk delete route"
 check_pattern "$ROUTES" "listQuerySchema" "routes: uses listQuerySchema for pagination"
 
 # --- Service: must use correct imports + pagination ---
@@ -56,6 +58,8 @@ check_pattern "$SERVICE" "../../db/client" "service: DB client import"
 check_pattern "$SERVICE" "@repo/shared" "service: types from @repo/shared"
 check_pattern "$SERVICE" "ListQuery" "service: uses ListQuery type"
 check_pattern "$SERVICE" "buildPaginationMeta" "service: uses buildPaginationMeta"
+check_pattern "$SERVICE" "AppError" "service: uses AppError for errors"
+check_pattern "$SERVICE" "bulkDelete" "service: has bulkDelete function"
 
 # --- Hooks: must use Hono RPC + TanStack Query + error handling ---
 check_pattern "$HOOKS" "@/lib/api-client" "hooks: api-client import"
@@ -64,6 +68,8 @@ check_pattern "$HOOKS" "useQuery" "hooks: useQuery"
 check_pattern "$HOOKS" "useMutation" "hooks: useMutation"
 check_pattern "$HOOKS" "useQueryClient" "hooks: useQueryClient"
 check_pattern "$HOOKS" '\$get' "hooks: Hono RPC \$get call"
+check_pattern "$HOOKS" '\$patch' "hooks: Hono RPC \$patch call (not \$put)"
+check_pattern "$HOOKS" "BulkDelete" "hooks: has bulk delete hook"
 check_pattern "$HOOKS" "ListQuery" "hooks: uses ListQuery type for params"
 
 # --- Component: must use hooks + theme tokens ---
