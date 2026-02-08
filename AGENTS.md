@@ -70,6 +70,7 @@ Run `pnpm generate:slice <name>` to scaffold, then:
 - **Slice isolation:** A slice may import from `@repo/shared` and its own slice only
 - **Errors:** Throw `AppError.notFound()` etc. in services/routes — global handler catches them
 - **Pagination:** All list endpoints accept `ListQuerySchema` and return `{ data, meta }`
+- **Testing:** Every CRUD slice has contract tests + integration tests. See `apps/api/AGENTS.md` for the CRUD Test Matrix.
 - **Tailwind only:** No CSS files. Use Tailwind theme tokens (not hardcoded colors). CVA for variants.
 - **UI primitives:** Reusable components live in `apps/web/src/ui/` (shadcn/ui pattern, copy-paste owned)
 - **v0 for UI generation:** Use [v0.dev](https://v0.dev) to generate shadcn/ui components. Always prompt with "React + Vite, NO Next.js, NO server components". Adapt imports from `@/components/ui/` to `@/ui/`.

@@ -534,16 +534,90 @@ describe('${SLICE} route contracts', () => {
 })
 TMPL
 
+# --- 8. Integration tests (TDD — complete it.todo() stubs for full CRUD Test Matrix) ---
+cat > "$API_TESTS_DIR/routes.integration.test.ts" << 'TMPL_HEREDOC'
+/**
+ * Integration tests for ${SLICE} — verifier-first architecture.
+ *
+ * Tests against real PostgreSQL (docker-compose).
+ * Complete each it.todo() to activate the test.
+ *
+ * Test IDs follow the standard CRUD Test Matrix from AGENTS.md.
+ */
+import type { ListQuery } from '@repo/shared'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { initDb } from '../../../db/client'
+import { ${SLICE} } from '../schema'
+
+const TEST_DB_URL = 'postgresql://mvp:mvp@localhost:5433/mvp'
+
+let db: ReturnType<typeof initDb>
+
+beforeAll(async () => {
+	db = initDb(TEST_DB_URL)
+	// TODO: Insert test data
+})
+
+afterAll(async () => {
+	// TODO: Clean up test data
+})
+
+describe('LIST /api/${SLICE}', () => {
+	it.todo('LIST-01: returns paginated data with default params')
+	it.todo('LIST-02: respects custom page and limit')
+	it.todo('LIST-03: page 2 returns different items than page 1')
+	it.todo('LIST-04: page beyond total returns empty data')
+	it.todo('LIST-05: search is case-insensitive and partial')
+	it.todo('LIST-06: search returns empty for no match')
+	it.todo('LIST-07: filterValue + filterFields targets specific columns')
+	it.todo('LIST-08: filterFields ignores columns not in whitelist')
+	it.todo('LIST-09: sort ascending works for each sortColumn')
+	it.todo('LIST-10: sort descending works for each sortColumn')
+	it.todo('LIST-11: invalid sort column falls back to defaultSort')
+	it.todo('LIST-12: combined search + sort + pagination')
+})
+
+describe('GET /api/${SLICE}/{id}', () => {
+	it.todo('GET-01: returns item by ID')
+	it.todo('GET-02: returns 404 for non-existent ID')
+})
+
+describe('CREATE /api/${SLICE}', () => {
+	it.todo('CREATE-01: creates and returns item (201)')
+	it.todo('CREATE-02: returns 400 for invalid payload')
+})
+
+describe('UPDATE /api/${SLICE}/{id}', () => {
+	it.todo('UPDATE-01: updates and returns item')
+	it.todo('UPDATE-02: returns 404 for non-existent ID')
+	it.todo('UPDATE-03: returns 400 for invalid payload')
+	it.todo('UPDATE-04: partial update only changes specified fields')
+})
+
+describe('DELETE /api/${SLICE}/{id}', () => {
+	it.todo('DELETE-01: deletes item by ID')
+	it.todo('DELETE-02: returns 404 for non-existent ID')
+})
+
+describe('DELETE /api/${SLICE}/bulk', () => {
+	it.todo('BULK-01: deletes multiple items')
+})
+TMPL_HEREDOC
+
+# Now replace placeholders in the integration test
+sed -i "" "s/\${SLICE}/${SLICE}/g" "$API_TESTS_DIR/routes.integration.test.ts"
+
 echo ""
 echo "Slice '$SLICE' generated (entity: $SINGULAR). Next steps:"
-echo "  1. Edit schemas:   packages/shared/src/slices/$SLICE/schemas.ts"
-echo "  2. Export from:     packages/shared/src/index.ts"
-echo "  3. Add DB columns:  apps/api/src/slices/$SLICE/schema.ts (already scaffolded with UUIDv7)"
-echo "  4. Re-export table: apps/api/src/db/schema.ts → add: export * from '../slices/$SLICE/schema'"
-echo "  5. Implement:       apps/api/src/slices/$SLICE/service.ts"
-echo "  6. Register route:  apps/api/src/app.ts → app.route('/api/$SLICE', ${SLICE}Routes)"
-echo "  7. Build UI:        apps/web/src/slices/$SLICE/components/"
-echo "  8. Run:             pnpm db:generate && pnpm db:migrate"
-echo "  9. Complete tests:  apps/api/src/slices/$SLICE/__tests__/routes.test.ts"
-echo " 10. Contracts:       pnpm validate:contracts (runs automatically in pnpm verify)"
-echo " 11. Verify:          pnpm verify"
+echo "  1. Edit schemas:        packages/shared/src/slices/$SLICE/schemas.ts"
+echo "  2. Export from:          packages/shared/src/index.ts"
+echo "  3. Add DB columns:       apps/api/src/slices/$SLICE/schema.ts (already scaffolded with UUIDv7)"
+echo "  4. Re-export table:      apps/api/src/db/schema.ts → add: export * from '../slices/$SLICE/schema'"
+echo "  5. Implement:            apps/api/src/slices/$SLICE/service.ts"
+echo "  6. Register route:       apps/api/src/app.ts → app.route('/api/$SLICE', ${SLICE}Routes)"
+echo "  7. Build UI:             apps/web/src/slices/$SLICE/components/"
+echo "  8. Run:                  pnpm db:generate && pnpm db:migrate"
+echo "  9. Complete tests:       apps/api/src/slices/$SLICE/__tests__/routes.test.ts"
+echo " 10. Complete integration: apps/api/src/slices/$SLICE/__tests__/routes.integration.test.ts (it.todo → it)"
+echo " 11. Contracts:            pnpm validate:contracts (runs automatically in pnpm verify)"
+echo " 12. Verify:               pnpm verify"

@@ -78,6 +78,7 @@ check_pattern "$COMPONENT" "text-muted-foreground" "component: uses theme tokens
 check_pattern "$COMPONENT" "text-destructive" "component: uses destructive token for errors"
 
 TESTS="$ROOT/apps/api/src/slices/$TEST_SLICE/__tests__/routes.test.ts"
+INTEGRATION_TESTS="$ROOT/apps/api/src/slices/$TEST_SLICE/__tests__/routes.integration.test.ts"
 
 # --- Tests: must exist and use correct patterns ---
 check_pattern "$TESTS" "vitest" "tests: vitest imports"
@@ -85,8 +86,19 @@ check_pattern "$TESTS" "createApp" "tests: imports createApp"
 check_pattern "$TESTS" "app.request" "tests: uses app.request() for HTTP tests"
 check_pattern "$TESTS" "NOT_FOUND" "tests: checks NOT_FOUND error code"
 
+# --- Integration tests: must exist with CRUD Test Matrix IDs ---
+check_pattern "$INTEGRATION_TESTS" "LIST-01" "integration: has LIST-01 test ID"
+check_pattern "$INTEGRATION_TESTS" "GET-01" "integration: has GET-01 test ID"
+check_pattern "$INTEGRATION_TESTS" "CREATE-01" "integration: has CREATE-01 test ID"
+check_pattern "$INTEGRATION_TESTS" "UPDATE-01" "integration: has UPDATE-01 test ID"
+check_pattern "$INTEGRATION_TESTS" "DELETE-01" "integration: has DELETE-01 test ID"
+check_pattern "$INTEGRATION_TESTS" "BULK-01" "integration: has BULK-01 test ID"
+check_pattern "$INTEGRATION_TESTS" "it.todo" "integration: uses it.todo() stubs"
+check_pattern "$INTEGRATION_TESTS" "initDb" "integration: imports initDb"
+check_pattern "$INTEGRATION_TESTS" "postgresql://mvp:mvp@localhost:5433/mvp" "integration: uses correct test DB URL"
+
 # --- All files must exist ---
-for f in "$SCHEMAS" "$ROUTES" "$SERVICE" "$HOOKS" "$COMPONENT" "$TESTS"; do
+for f in "$SCHEMAS" "$ROUTES" "$SERVICE" "$HOOKS" "$COMPONENT" "$TESTS" "$INTEGRATION_TESTS"; do
 	if [ ! -f "$f" ]; then
 		echo "FAIL: Missing file: $(basename "$f")"
 		ERRORS=$((ERRORS + 1))

@@ -150,6 +150,71 @@ LogTape is **silent in tests** (no `setupLogger()` call = no output). Logs appea
 
 `pnpm db:seed` populates the database with sample data for development. The seed script is at `src/db/seed.ts`.
 
+## Testing Strategy (Verifier-First)
+
+Three levels of tests, each with clear ownership:
+
+### Level 1: Contract tests (per-slice, generated, no DB, < 100ms)
+Verify routes EXIST in OpenAPI spec. Catch missing endpoints or unregistered slices.
+File: `src/slices/<name>/__tests__/routes.contract.test.ts`
+
+### Level 2: Integration tests (per-slice, generated stubs, real DB, < 5s)
+Test through service layer against PostgreSQL. The generator produces `it.todo()` stubs.
+File: `src/slices/<name>/__tests__/routes.integration.test.ts`
+
+### Level 3: Middleware tests (shared, manual, no DB)
+Auth, rate-limit, CORS. Written once, not per-slice.
+Files: `src/middleware/__tests__/`
+
+### CRUD Test Matrix
+
+Every CRUD slice MUST have tests matching these IDs. The generator scaffolds `it.todo()` stubs.
+
+| Operation | Test ID | Description |
+|-----------|---------|-------------|
+| **LIST** | LIST-01 | Returns paginated data with default params (page 1, limit 20, desc) |
+| | LIST-02 | Respects custom page and limit |
+| | LIST-03 | Page 2 returns different items than page 1 |
+| | LIST-04 | Page beyond total returns empty data |
+| | LIST-05 | Search is case-insensitive and partial match |
+| | LIST-06 | Search returns empty for no match |
+| | LIST-07 | filterValue + filterFields targets specific columns |
+| | LIST-08 | filterFields ignores columns not in whitelist |
+| | LIST-09 | Sort ascending works for each sortColumn |
+| | LIST-10 | Sort descending works for each sortColumn |
+| | LIST-11 | Invalid sort column falls back to defaultSort |
+| | LIST-12 | Combined: search + sort + pagination |
+| **GET** | GET-01 | Returns item by ID |
+| | GET-02 | Returns 404 for non-existent ID |
+| **CREATE** | CREATE-01 | Creates and returns item (201) |
+| | CREATE-02 | Returns 400 for invalid payload |
+| | CREATE-03 | Returns 409 for unique constraint violation (if applicable) |
+| **UPDATE** | UPDATE-01 | Updates and returns item |
+| | UPDATE-02 | Returns 404 for non-existent ID |
+| | UPDATE-03 | Returns 400 for invalid payload |
+| | UPDATE-04 | Partial update only changes specified fields |
+| **DELETE** | DELETE-01 | Deletes item by ID |
+| | DELETE-02 | Returns 404 for non-existent ID |
+| **BULK_DELETE** | BULK-01 | Deletes multiple items |
+| **CONTRACT** | CONTRACT-01 | All CRUD endpoints exist in OpenAPI spec |
+
+### Test infrastructure
+
+- DB connection: `postgresql://mvp:mvp@localhost:5433/mvp` (Docker)
+- Hono test helper: `app.request()` for HTTP tests without running a server
+- Vitest with `vitest run` for CI, `vitest` for watch mode
+- Tests use real PostgreSQL — no mocks for data layer
+- Clean up test data in `afterAll()` — never leave orphan rows
+
+### Test performance budget
+
+| Suite | Target | Current |
+|-------|--------|---------|
+| Contract tests (all slices) | < 100ms | ~1ms |
+| Integration tests (per slice) | < 1s | ~200ms |
+| Middleware tests | < 100ms | ~50ms |
+| **Full suite** | **< 5s** | **3.7s (87 tests)** |
+
 ## Environment variables
 
 Validated at startup via `src/env.ts` (Zod schema). App crashes immediately if required vars are missing.
