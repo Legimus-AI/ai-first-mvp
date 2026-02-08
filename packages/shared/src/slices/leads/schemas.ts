@@ -34,3 +34,14 @@ export const createLeadSchema = z
 	.openapi('CreateLead')
 
 export type CreateLead = z.infer<typeof createLeadSchema>
+
+export const updateLeadSchema = z
+	.object({
+		name: z.string().max(100).nullable().optional(),
+		email: z.string().email().nullable().optional(),
+		phone: z.string().max(20).nullable().optional(),
+		metadata: z.record(z.unknown()).nullable().optional(),
+	})
+	.openapi('UpdateLead')
+
+export type UpdateLead = z.infer<typeof updateLeadSchema>

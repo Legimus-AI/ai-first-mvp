@@ -42,3 +42,21 @@ export function buildPaginationMeta(query: ListQuery, total: number): Pagination
 		hasMore: query.page < totalPages,
 	}
 }
+
+// --- Bulk delete schemas ---
+
+export const bulkDeleteSchema = z
+	.object({
+		ids: z.array(z.string().uuid()).min(1).max(100).openapi({ example: ['01942f1e-5b3a-7000-8000-000000000001', '01942f1e-5b3a-7000-8000-000000000002'] }),
+	})
+	.openapi('BulkDelete')
+
+export type BulkDelete = z.infer<typeof bulkDeleteSchema>
+
+export const bulkDeleteResponseSchema = z
+	.object({
+		deleted: z.number().openapi({ example: 5 }),
+	})
+	.openapi('BulkDeleteResponse')
+
+export type BulkDeleteResponse = z.infer<typeof bulkDeleteResponseSchema>
