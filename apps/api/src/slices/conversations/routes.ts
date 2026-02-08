@@ -11,7 +11,7 @@ import {
 	paginationMetaSchema,
 } from '@repo/shared'
 import { getDb } from '../../db/client'
-import { AUTH_ERRORS, PUBLIC_ERRORS, errorResponses } from '../../lib/openapi-errors'
+import { ADMIN_ERRORS, PUBLIC_ERRORS, errorResponses } from '../../lib/openapi-errors'
 import {
 	bulkDeleteConversations,
 	chat,
@@ -60,7 +60,7 @@ const listRoute = createRoute({
 			},
 			description: 'List of conversations',
 		},
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -96,7 +96,7 @@ const bulkDeleteRoute = createRoute({
 			description: 'Bulk delete result',
 		},
 		...errorResponses(400),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -125,7 +125,7 @@ const getByIdRoute = createRoute({
 			description: 'Conversation with messages',
 		},
 		...errorResponses(404),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -149,7 +149,7 @@ const deleteRoute = createRoute({
 			description: 'Conversation deleted',
 		},
 		...errorResponses(404),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 

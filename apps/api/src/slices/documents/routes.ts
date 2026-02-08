@@ -9,7 +9,7 @@ import {
 	updateDocumentSchema,
 } from '@repo/shared'
 import { getDb } from '../../db/client'
-import { AUTH_ERRORS, errorResponses } from '../../lib/openapi-errors'
+import { ADMIN_ERRORS, errorResponses } from '../../lib/openapi-errors'
 import {
 	bulkDeleteDocuments,
 	createDocument,
@@ -50,7 +50,7 @@ const listRoute = createRoute({
 			},
 			description: 'List of documents',
 		},
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -86,7 +86,7 @@ const bulkDeleteRoute = createRoute({
 			description: 'Bulk delete result',
 		},
 		...errorResponses(400),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -115,7 +115,7 @@ const getByIdRoute = createRoute({
 			description: 'Document details',
 		},
 		...errorResponses(404),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -150,7 +150,7 @@ const createRoute_ = createRoute({
 			description: 'Document created',
 		},
 		...errorResponses(400),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -186,7 +186,7 @@ const updateRoute = createRoute({
 			description: 'Document updated',
 		},
 		...errorResponses(400, 404),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -211,7 +211,7 @@ const deleteRoute = createRoute({
 			description: 'Document deleted',
 		},
 		...errorResponses(404),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 

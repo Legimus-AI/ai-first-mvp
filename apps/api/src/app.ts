@@ -6,7 +6,7 @@ import { cors } from 'hono/cors'
 import { secureHeaders } from 'hono/secure-headers'
 import { checkDbHealth } from './db/client'
 import { getAppLogger } from './logger'
-import { authGuard } from './middleware/auth'
+import { authGuard, requireRole } from './middleware/auth'
 import { rateLimiter } from './middleware/rate-limit'
 import { requestId } from './middleware/request-id'
 import { authRoutes } from './slices/auth/routes'
@@ -45,6 +45,13 @@ export function createApp(config: AppConfig = {}): OpenAPIHono {
 			'*',
 			authGuard({ secret: config.jwtSecret, exclude: ['/health', '/doc', '/ui', '/api/chat', '/api/auth'] }),
 		)
+
+		// Admin-only routes (requires valid JWT with role=admin)
+		app.use('/api/users/*', requireRole('admin'))
+		app.use('/api/bots/*', requireRole('admin'))
+		app.use('/api/documents/*', requireRole('admin'))
+		app.use('/api/leads/*', requireRole('admin'))
+		app.use('/api/conversations/*', requireRole('admin'))
 	}
 
 	// --- Global error handler ---

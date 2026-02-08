@@ -77,6 +77,13 @@ export function errorResponses(...codes: number[]) {
 export const AUTH_ERRORS = errorResponses(401, 429, 500)
 
 /**
+ * Middleware-level errors for admin-only endpoints (auth + role check).
+ * Spread alongside route-specific errors:
+ *   ...errorResponses(404), ...ADMIN_ERRORS
+ */
+export const ADMIN_ERRORS = errorResponses(401, 403, 429, 500)
+
+/**
  * Middleware-level errors for public endpoints (no auth required).
  *   ...errorResponses(400), ...PUBLIC_ERRORS
  */

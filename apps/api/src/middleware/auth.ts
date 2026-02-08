@@ -1,3 +1,4 @@
+import { AppError } from '@repo/shared'
 import type { MiddlewareHandler } from 'hono'
 import { jwt } from 'hono/jwt'
 
@@ -15,5 +16,15 @@ export function authGuard(config: AuthConfig): MiddlewareHandler {
 			return
 		}
 		return jwtMiddleware(c, next)
+	}
+}
+
+export function requireRole(...roles: string[]): MiddlewareHandler {
+	return async (c, next) => {
+		const payload = c.get('jwtPayload')
+		if (!payload?.role || !roles.includes(payload.role)) {
+			throw AppError.forbidden(`Requires role: ${roles.join(' or ')}`)
+		}
+		await next()
 	}
 }

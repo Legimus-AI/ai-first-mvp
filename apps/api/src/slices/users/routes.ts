@@ -9,7 +9,7 @@ import {
 	userSchema,
 } from '@repo/shared'
 import { getDb } from '../../db/client'
-import { AUTH_ERRORS, errorResponses } from '../../lib/openapi-errors'
+import { ADMIN_ERRORS, errorResponses } from '../../lib/openapi-errors'
 import { bulkDeleteUsers, createUser, deleteUser, getUserById, listUsers, updateUser } from './service'
 
 const app = new OpenAPIHono()
@@ -41,7 +41,7 @@ const listRoute = createRoute({
 			},
 			description: 'List of users',
 		},
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -76,7 +76,7 @@ const bulkDeleteRoute = createRoute({
 			description: 'Bulk delete result',
 		},
 		...errorResponses(400),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -105,7 +105,7 @@ const getByIdRoute = createRoute({
 			description: 'User details',
 		},
 		...errorResponses(404),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -140,7 +140,7 @@ const createRoute_ = createRoute({
 			description: 'User created',
 		},
 		...errorResponses(400, 409),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -176,7 +176,7 @@ const updateRoute = createRoute({
 			description: 'User updated',
 		},
 		...errorResponses(400, 404),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -201,7 +201,7 @@ const deleteRoute = createRoute({
 			description: 'User deleted',
 		},
 		...errorResponses(404),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 

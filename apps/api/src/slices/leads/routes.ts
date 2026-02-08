@@ -9,7 +9,7 @@ import {
 	updateLeadSchema,
 } from '@repo/shared'
 import { getDb } from '../../db/client'
-import { AUTH_ERRORS, errorResponses } from '../../lib/openapi-errors'
+import { ADMIN_ERRORS, errorResponses } from '../../lib/openapi-errors'
 import { bulkDeleteLeads, createLead, deleteLead, getLeadById, listLeads, updateLead } from './service'
 
 const app = new OpenAPIHono()
@@ -43,7 +43,7 @@ const listRoute = createRoute({
 			},
 			description: 'List of leads',
 		},
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -79,7 +79,7 @@ const bulkDeleteRoute = createRoute({
 			description: 'Bulk delete result',
 		},
 		...errorResponses(400),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -108,7 +108,7 @@ const getByIdRoute = createRoute({
 			description: 'Lead details',
 		},
 		...errorResponses(404),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -143,7 +143,7 @@ const createRoute_ = createRoute({
 			description: 'Lead created',
 		},
 		...errorResponses(400),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -179,7 +179,7 @@ const updateRoute = createRoute({
 			description: 'Lead updated',
 		},
 		...errorResponses(400, 404),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
@@ -204,7 +204,7 @@ const deleteRoute = createRoute({
 			description: 'Lead deleted',
 		},
 		...errorResponses(404),
-		...AUTH_ERRORS,
+		...ADMIN_ERRORS,
 	},
 })
 
