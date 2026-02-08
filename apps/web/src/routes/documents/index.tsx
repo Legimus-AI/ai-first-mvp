@@ -22,17 +22,17 @@ function DocumentsPage() {
 
 	if (isError) {
 		return (
-			<div className="flex flex-col items-center justify-center py-12">
+			<div className="flex flex-col items-center justify-center p-4 py-12 md:p-8">
 				<p className="text-sm text-destructive">Failed to load documents: {error.message}</p>
 			</div>
 		)
 	}
 
 	return (
-		<div className="p-8">
-			<div className="mb-8 flex items-center justify-between">
+		<div className="p-4 md:p-8">
+			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<h1 className="text-3xl font-bold">Documents</h1>
+					<h1 className="text-2xl font-bold md:text-3xl">Documents</h1>
 					<p className="text-muted-foreground">Manage bot knowledge base documents</p>
 				</div>
 				<Button onClick={() => setIsFormOpen(true)}>

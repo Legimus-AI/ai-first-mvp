@@ -36,7 +36,7 @@ export function DocumentTable({ documents, bots }: DocumentTableProps) {
 
 	return (
 		<>
-			<div className="rounded-md border border-border">
+			<div className="overflow-x-auto rounded-md border border-border">
 				<table className="w-full text-sm">
 					<thead>
 						<tr className="border-b border-border bg-muted/50">

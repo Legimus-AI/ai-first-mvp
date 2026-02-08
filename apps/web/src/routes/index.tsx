@@ -18,13 +18,13 @@ function DashboardPage() {
 	const activeBots = botsData?.data.filter((bot: { isActive: boolean }) => bot.isActive).length ?? 0
 
 	return (
-		<div className="p-8">
+		<div className="p-4 md:p-8">
 			<div className="mb-8">
-				<h1 className="text-3xl font-bold">Dashboard</h1>
+				<h1 className="text-2xl font-bold md:text-3xl">Dashboard</h1>
 				<p className="text-muted-foreground">Overview of your GenAI bots</p>
 			</div>
 
-			<div className="grid gap-6 md:grid-cols-3">
+			<div className="grid gap-4 md:grid-cols-3 md:gap-6">
 				<StatCard icon={Bot} title="Total Bots" value={totalBots} isLoading={isLoadingBots} />
 				<StatCard
 					icon={TrendingUp}
