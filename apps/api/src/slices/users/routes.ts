@@ -1,5 +1,8 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import {
+	bulkDeleteResponseSchema,
+	bulkDeleteSchema,
+	createUserSchema,
 	errorResponseSchema,
 	listQuerySchema,
 	paginationMetaSchema,
@@ -7,7 +10,7 @@ import {
 	userSchema,
 } from '@repo/shared'
 import { getDb } from '../../db/client'
-import { deleteUser, getUserById, listUsers, updateUser } from './service'
+import { bulkDeleteUsers, createUser, deleteUser, getUserById, listUsers, updateUser } from './service'
 
 const app = new OpenAPIHono()
 
@@ -48,6 +51,39 @@ app.openapi(listRoute, async (c) => {
 	return c.json(result)
 })
 
+// DELETE /bulk
+const bulkDeleteRoute = createRoute({
+	method: 'delete',
+	path: '/bulk',
+	tags: ['Users'],
+	request: {
+		body: {
+			content: {
+				'application/json': {
+					schema: bulkDeleteSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		200: {
+			content: {
+				'application/json': {
+					schema: bulkDeleteResponseSchema,
+				},
+			},
+			description: 'Bulk delete result',
+		},
+	},
+})
+
+app.openapi(bulkDeleteRoute, async (c) => {
+	const { ids } = c.req.valid('json')
+	const db = getDb()
+	const result = await bulkDeleteUsers(db, ids)
+	return c.json(result)
+})
+
 // GET /:id
 const getByIdRoute = createRoute({
 	method: 'get',
@@ -73,6 +109,39 @@ app.openapi(getByIdRoute, async (c) => {
 	const db = getDb()
 	const user = await getUserById(db, id)
 	return c.json(user)
+})
+
+// POST /
+const createRoute_ = createRoute({
+	method: 'post',
+	path: '/',
+	tags: ['Users'],
+	request: {
+		body: {
+			content: {
+				'application/json': {
+					schema: createUserSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		201: {
+			content: {
+				'application/json': {
+					schema: userSchema,
+				},
+			},
+			description: 'User created',
+		},
+	},
+})
+
+app.openapi(createRoute_, async (c) => {
+	const data = c.req.valid('json')
+	const db = getDb()
+	const user = await createUser(db, data)
+	return c.json(user, 201)
 })
 
 // PATCH /:id

@@ -1,12 +1,16 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import {
+	bulkDeleteResponseSchema,
+	bulkDeleteSchema,
+	createLeadSchema,
 	errorResponseSchema,
 	leadSchema,
 	listQuerySchema,
 	paginationMetaSchema,
+	updateLeadSchema,
 } from '@repo/shared'
 import { getDb } from '../../db/client'
-import { deleteLead, getLeadById, listLeads } from './service'
+import { bulkDeleteLeads, createLead, deleteLead, getLeadById, listLeads, updateLead } from './service'
 
 const app = new OpenAPIHono()
 
@@ -50,6 +54,39 @@ app.openapi(listRoute, async (c) => {
 	return c.json(result)
 })
 
+// DELETE /bulk
+const bulkDeleteRoute = createRoute({
+	method: 'delete',
+	path: '/bulk',
+	tags: ['Leads'],
+	request: {
+		body: {
+			content: {
+				'application/json': {
+					schema: bulkDeleteSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		200: {
+			content: {
+				'application/json': {
+					schema: bulkDeleteResponseSchema,
+				},
+			},
+			description: 'Bulk delete result',
+		},
+	},
+})
+
+app.openapi(bulkDeleteRoute, async (c) => {
+	const { ids } = c.req.valid('json')
+	const db = getDb()
+	const result = await bulkDeleteLeads(db, ids)
+	return c.json(result)
+})
+
 // GET /:id
 const getByIdRoute = createRoute({
 	method: 'get',
@@ -74,6 +111,74 @@ app.openapi(getByIdRoute, async (c) => {
 	const { id } = c.req.valid('param')
 	const db = getDb()
 	const lead = await getLeadById(db, id)
+	return c.json(lead)
+})
+
+// POST /
+const createRoute_ = createRoute({
+	method: 'post',
+	path: '/',
+	tags: ['Leads'],
+	request: {
+		body: {
+			content: {
+				'application/json': {
+					schema: createLeadSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		201: {
+			content: {
+				'application/json': {
+					schema: leadSchema,
+				},
+			},
+			description: 'Lead created',
+		},
+	},
+})
+
+app.openapi(createRoute_, async (c) => {
+	const data = c.req.valid('json')
+	const db = getDb()
+	const lead = await createLead(db, data)
+	return c.json(lead, 201)
+})
+
+// PATCH /:id
+const updateRoute = createRoute({
+	method: 'patch',
+	path: '/{id}',
+	tags: ['Leads'],
+	request: {
+		params: idParamSchema,
+		body: {
+			content: {
+				'application/json': {
+					schema: updateLeadSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		200: {
+			content: {
+				'application/json': {
+					schema: leadSchema,
+				},
+			},
+			description: 'Lead updated',
+		},
+	},
+})
+
+app.openapi(updateRoute, async (c) => {
+	const { id } = c.req.valid('param')
+	const data = c.req.valid('json')
+	const db = getDb()
+	const lead = await updateLead(db, id, data)
 	return c.json(lead)
 })
 

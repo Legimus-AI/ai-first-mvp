@@ -1,5 +1,7 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import {
+	bulkDeleteResponseSchema,
+	bulkDeleteSchema,
 	createDocumentSchema,
 	documentSchema,
 	errorResponseSchema,
@@ -9,6 +11,7 @@ import {
 } from '@repo/shared'
 import { getDb } from '../../db/client'
 import {
+	bulkDeleteDocuments,
 	createDocument,
 	deleteDocument,
 	getDocumentById,
@@ -55,6 +58,39 @@ app.openapi(listRoute, async (c) => {
 	const { botId, ...listQuery } = query
 	const db = getDb()
 	const result = await listDocuments(db, botId, listQuery)
+	return c.json(result)
+})
+
+// DELETE /bulk
+const bulkDeleteRoute = createRoute({
+	method: 'delete',
+	path: '/bulk',
+	tags: ['Documents'],
+	request: {
+		body: {
+			content: {
+				'application/json': {
+					schema: bulkDeleteSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		200: {
+			content: {
+				'application/json': {
+					schema: bulkDeleteResponseSchema,
+				},
+			},
+			description: 'Bulk delete result',
+		},
+	},
+})
+
+app.openapi(bulkDeleteRoute, async (c) => {
+	const { ids } = c.req.valid('json')
+	const db = getDb()
+	const result = await bulkDeleteDocuments(db, ids)
 	return c.json(result)
 })
 

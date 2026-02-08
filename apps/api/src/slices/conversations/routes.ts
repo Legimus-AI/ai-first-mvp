@@ -1,5 +1,7 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import {
+	bulkDeleteResponseSchema,
+	bulkDeleteSchema,
 	chatRequestSchema,
 	chatResponseSchema,
 	conversationSchema,
@@ -11,7 +13,9 @@ import {
 } from '@repo/shared'
 import { getDb } from '../../db/client'
 import {
+	bulkDeleteConversations,
 	chat,
+	deleteConversation,
 	getConversationHistory,
 	getConversationWithMessages,
 	listConversations,
@@ -67,6 +71,39 @@ adminApp.openapi(listRoute, async (c) => {
 	return c.json(result)
 })
 
+// DELETE /conversations/bulk
+const bulkDeleteRoute = createRoute({
+	method: 'delete',
+	path: '/bulk',
+	tags: ['Conversations'],
+	request: {
+		body: {
+			content: {
+				'application/json': {
+					schema: bulkDeleteSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		200: {
+			content: {
+				'application/json': {
+					schema: bulkDeleteResponseSchema,
+				},
+			},
+			description: 'Bulk delete result',
+		},
+	},
+})
+
+adminApp.openapi(bulkDeleteRoute, async (c) => {
+	const { ids } = c.req.valid('json')
+	const db = getDb()
+	const result = await bulkDeleteConversations(db, ids)
+	return c.json(result)
+})
+
 // GET /conversations/:id
 const getByIdRoute = createRoute({
 	method: 'get',
@@ -92,6 +129,28 @@ adminApp.openapi(getByIdRoute, async (c) => {
 	const db = getDb()
 	const conversation = await getConversationWithMessages(db, id)
 	return c.json(conversation)
+})
+
+// DELETE /conversations/:id
+const deleteRoute = createRoute({
+	method: 'delete',
+	path: '/{id}',
+	tags: ['Conversations'],
+	request: {
+		params: idParamSchema,
+	},
+	responses: {
+		204: {
+			description: 'Conversation deleted',
+		},
+	},
+})
+
+adminApp.openapi(deleteRoute, async (c) => {
+	const { id } = c.req.valid('param')
+	const db = getDb()
+	await deleteConversation(db, id)
+	return c.body(null, 204)
 })
 
 // Public chat routes (no auth)
