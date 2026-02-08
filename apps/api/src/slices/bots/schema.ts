@@ -1,5 +1,5 @@
-import { pgTable, text, timestamp, uuid, boolean } from 'drizzle-orm/pg-core'
 import { sql } from 'drizzle-orm'
+import { boolean, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { users } from '../users/schema'
 
 export const bots = pgTable('bots', {
@@ -8,7 +8,9 @@ export const bots = pgTable('bots', {
 	systemPrompt: text('system_prompt').notNull(),
 	model: text('model').notNull().default('gemini-2.0-flash'),
 	welcomeMessage: text('welcome_message').notNull().default('Hi! How can I help you today?'),
-	userId: uuid('user_id').notNull().references(() => users.id),
+	userId: uuid('user_id')
+		.notNull()
+		.references(() => users.id),
 	isActive: boolean('is_active').notNull().default(true),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

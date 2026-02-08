@@ -1,6 +1,6 @@
+import { useBots } from '@/slices/bots/hooks/use-bots'
 import { LeadTable } from '@/slices/leads/components/lead-table'
 import { useLeads } from '@/slices/leads/hooks/use-leads'
-import { useBots } from '@/slices/bots/hooks/use-bots'
 import { Skeleton } from '@/ui/skeleton'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'

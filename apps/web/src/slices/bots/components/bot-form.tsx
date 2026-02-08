@@ -8,8 +8,8 @@ import {
 	DialogTitle,
 } from '@/ui/dialog'
 import { Input } from '@/ui/input'
-import { type Bot, type CreateBot, createBotSchema } from '@repo/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { type Bot, type CreateBot, createBotSchema } from '@repo/shared'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useCreateBot, useUpdateBot } from '../hooks/use-bots'
@@ -97,9 +97,7 @@ export function BotForm({ open, onClose, bot }: BotFormProps) {
 								error={!!errors.name}
 								placeholder="E-commerce Assistant"
 							/>
-							{errors.name && (
-								<p className="text-sm text-destructive">{errors.name.message}</p>
-							)}
+							{errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
 						</div>
 
 						<div className="space-y-2">
@@ -112,9 +110,7 @@ export function BotForm({ open, onClose, bot }: BotFormProps) {
 								error={!!errors.model}
 								placeholder="gemini-2.0-flash"
 							/>
-							{errors.model && (
-								<p className="text-sm text-destructive">{errors.model.message}</p>
-							)}
+							{errors.model && <p className="text-sm text-destructive">{errors.model.message}</p>}
 						</div>
 
 						<div className="space-y-2">

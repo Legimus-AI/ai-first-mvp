@@ -60,18 +60,10 @@ export function DocumentTable({ documents, bots }: DocumentTableProps) {
 								</td>
 								<td className="px-4 py-3 text-right">
 									<div className="flex items-center justify-end gap-2">
-										<Button
-											variant="ghost"
-											size="icon"
-											onClick={() => setEditingDocument(doc)}
-										>
+										<Button variant="ghost" size="icon" onClick={() => setEditingDocument(doc)}>
 											<Edit className="h-4 w-4" />
 										</Button>
-										<Button
-											variant="ghost"
-											size="icon"
-											onClick={() => handleDelete(doc.id)}
-										>
+										<Button variant="ghost" size="icon" onClick={() => handleDelete(doc.id)}>
 											<Trash2 className="h-4 w-4" />
 										</Button>
 									</div>

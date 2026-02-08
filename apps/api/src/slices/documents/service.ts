@@ -1,4 +1,3 @@
-import { count, eq, ilike, sql } from 'drizzle-orm'
 import {
 	AppError,
 	type CreateDocument,
@@ -6,6 +5,7 @@ import {
 	type UpdateDocument,
 	buildPaginationMeta,
 } from '@repo/shared'
+import { count, eq, ilike, sql } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
 import { documents } from './schema'
 
@@ -25,7 +25,8 @@ export async function listDocuments(
 		conditions.push(ilike(documents.title, `%${query.search}%`))
 	}
 
-	const whereCondition = conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined
+	const whereCondition =
+		conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined
 
 	// Execute query with pagination
 	const [items, [totalResult]] = await Promise.all([
@@ -40,10 +41,7 @@ export async function listDocuments(
 			)
 			.offset(offset)
 			.limit(query.limit),
-		db
-			.select({ count: count() })
-			.from(documents)
-			.where(whereCondition),
+		db.select({ count: count() }).from(documents).where(whereCondition),
 	])
 
 	const sanitizedItems = items.map((doc) => ({

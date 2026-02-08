@@ -10,11 +10,11 @@ import { authGuard } from './middleware/auth'
 import { rateLimiter } from './middleware/rate-limit'
 import { requestId } from './middleware/request-id'
 import { authRoutes } from './slices/auth/routes'
-import { usersRoutes } from './slices/users/routes'
 import { botsRoutes } from './slices/bots/routes'
+import { chatRoutes, conversationsRoutes } from './slices/conversations/routes'
 import { documentsRoutes } from './slices/documents/routes'
 import { leadsRoutes } from './slices/leads/routes'
-import { conversationsRoutes, chatRoutes } from './slices/conversations/routes'
+import { usersRoutes } from './slices/users/routes'
 
 export interface AppConfig {
 	corsOrigin?: string

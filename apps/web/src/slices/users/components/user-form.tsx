@@ -8,8 +8,8 @@ import {
 	DialogTitle,
 } from '@/ui/dialog'
 import { Input } from '@/ui/input'
-import { type UpdateUser, type User, updateUserSchema } from '@repo/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { type UpdateUser, type User, updateUserSchema } from '@repo/shared'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useUpdateUser } from '../hooks/use-users'
@@ -63,15 +63,8 @@ export function UserForm({ open, onClose, user }: UserFormProps) {
 							<label htmlFor="name" className="text-sm font-medium">
 								Name
 							</label>
-							<Input
-								id="name"
-								{...register('name')}
-								error={!!errors.name}
-								placeholder="John Doe"
-							/>
-							{errors.name && (
-								<p className="text-sm text-destructive">{errors.name.message}</p>
-							)}
+							<Input id="name" {...register('name')} error={!!errors.name} placeholder="John Doe" />
+							{errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
 						</div>
 
 						<div className="space-y-2">
@@ -86,9 +79,7 @@ export function UserForm({ open, onClose, user }: UserFormProps) {
 								<option value="user">User</option>
 								<option value="admin">Admin</option>
 							</select>
-							{errors.role && (
-								<p className="text-sm text-destructive">{errors.role.message}</p>
-							)}
+							{errors.role && <p className="text-sm text-destructive">{errors.role.message}</p>}
 						</div>
 					</div>
 				</DialogContent>

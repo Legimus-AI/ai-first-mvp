@@ -1,5 +1,5 @@
+import { AppError, type ListQuery, type UpdateUser, buildPaginationMeta } from '@repo/shared'
 import { count, eq, ilike, or, sql } from 'drizzle-orm'
-import { AppError, type ListQuery, buildPaginationMeta, type UpdateUser } from '@repo/shared'
 import type { getDb } from '../../db/client'
 import { users } from './schema'
 
@@ -8,10 +8,7 @@ export async function listUsers(db: ReturnType<typeof getDb>, query: ListQuery) 
 
 	// Build search condition
 	const searchCondition = query.search
-		? or(
-				ilike(users.name, `%${query.search}%`),
-				ilike(users.email, `%${query.search}%`),
-			)
+		? or(ilike(users.name, `%${query.search}%`), ilike(users.email, `%${query.search}%`))
 		: undefined
 
 	// Execute query with pagination
@@ -27,10 +24,7 @@ export async function listUsers(db: ReturnType<typeof getDb>, query: ListQuery) 
 			)
 			.offset(offset)
 			.limit(query.limit),
-		db
-			.select({ count: count() })
-			.from(users)
-			.where(searchCondition),
+		db.select({ count: count() }).from(users).where(searchCondition),
 	])
 
 	// Remove password hashes from all users
@@ -53,7 +47,6 @@ export async function getUserById(db: ReturnType<typeof getDb>, id: string) {
 		throw AppError.notFound('User not found')
 	}
 
-	// biome-ignore lint/performance/noDelete: Need to remove sensitive field
 	const { passwordHash: _, ...userWithoutPassword } = user
 
 	return {
@@ -81,7 +74,6 @@ export async function updateUser(db: ReturnType<typeof getDb>, id: string, data:
 		.where(eq(users.id, id))
 		.returning()
 
-	// biome-ignore lint/performance/noDelete: Need to remove sensitive field
 	const { passwordHash: _, ...userWithoutPassword } = updated
 
 	return {

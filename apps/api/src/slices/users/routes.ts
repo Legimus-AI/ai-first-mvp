@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi'
+import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import {
 	errorResponseSchema,
 	listQuerySchema,
@@ -12,7 +12,10 @@ import { deleteUser, getUserById, listUsers, updateUser } from './service'
 const app = new OpenAPIHono()
 
 const idParamSchema = z.object({
-	id: z.string().uuid().openapi({ param: { name: 'id', in: 'path' } }),
+	id: z
+		.string()
+		.uuid()
+		.openapi({ param: { name: 'id', in: 'path' } }),
 })
 
 // GET /

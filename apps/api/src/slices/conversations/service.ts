@@ -1,8 +1,8 @@
-import { count, eq, sql, and } from 'drizzle-orm'
 import { AppError, type ListQuery, buildPaginationMeta } from '@repo/shared'
+import { and, count, eq, sql } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
-import { getCachedMessages, setCachedMessages } from '../../lib/redis'
 import { generateChatResponse } from '../../lib/gemini'
+import { getCachedMessages, setCachedMessages } from '../../lib/redis'
 import { getDocumentsByBotId } from '../documents/service'
 import { conversations, messages } from './schema'
 
@@ -137,10 +137,7 @@ export async function listConversations(
 			)
 			.offset(offset)
 			.limit(query.limit),
-		db
-			.select({ count: count() })
-			.from(conversations)
-			.where(whereCondition),
+		db.select({ count: count() }).from(conversations).where(whereCondition),
 	])
 
 	const sanitizedItems = items.map((conv) => ({

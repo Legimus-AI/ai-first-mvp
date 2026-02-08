@@ -10,7 +10,10 @@ export const leadSchema = z
 		name: z.string().nullable().openapi({ example: 'John Doe' }),
 		email: z.string().email().nullable().openapi({ example: 'john@example.com' }),
 		phone: z.string().nullable().openapi({ example: '+56912345678' }),
-		metadata: z.record(z.unknown()).nullable().openapi({ example: { source: 'widget' } }),
+		metadata: z
+			.record(z.unknown())
+			.nullable()
+			.openapi({ example: { source: 'widget' } }),
 		createdAt: z.string().datetime().openapi({ example: '2026-01-01T00:00:00.000Z' }),
 	})
 	.openapi('Lead')

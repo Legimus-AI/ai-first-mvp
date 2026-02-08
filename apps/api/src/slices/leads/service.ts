@@ -1,13 +1,9 @@
-import { count, eq, sql, and } from 'drizzle-orm'
 import { AppError, type CreateLead, type ListQuery, buildPaginationMeta } from '@repo/shared'
+import { and, count, eq, sql } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
 import { leads } from './schema'
 
-export async function listLeads(
-	db: ReturnType<typeof getDb>,
-	query: ListQuery,
-	botId?: string,
-) {
+export async function listLeads(db: ReturnType<typeof getDb>, query: ListQuery, botId?: string) {
 	const offset = (query.page - 1) * query.limit
 
 	// Build where condition
@@ -26,10 +22,7 @@ export async function listLeads(
 			)
 			.offset(offset)
 			.limit(query.limit),
-		db
-			.select({ count: count() })
-			.from(leads)
-			.where(whereCondition),
+		db.select({ count: count() }).from(leads).where(whereCondition),
 	])
 
 	const sanitizedItems = items.map((lead) => ({

@@ -1,14 +1,14 @@
-import { useAuth } from '@/lib/auth'
 import { getApiClient } from '@/lib/api-client'
 import { throwIfNotOk } from '@/lib/api-error'
+import { useAuth } from '@/lib/auth'
 import { Button } from '@/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card'
 import { Input } from '@/ui/input'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { type LoginRequest, loginSchema } from '@repo/shared'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/login')({
@@ -65,9 +65,7 @@ function LoginPage() {
 								error={!!errors.email}
 								placeholder="admin@example.com"
 							/>
-							{errors.email && (
-								<p className="text-sm text-destructive">{errors.email.message}</p>
-							)}
+							{errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
 						</div>
 						<div className="space-y-2">
 							<label htmlFor="password" className="text-sm font-medium">

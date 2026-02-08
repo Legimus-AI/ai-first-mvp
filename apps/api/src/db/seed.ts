@@ -1,13 +1,13 @@
 import bcrypt from 'bcryptjs'
-import { users } from '../slices/users/schema'
 import { bots } from '../slices/bots/schema'
+import { conversations, messages } from '../slices/conversations/schema'
 import { documents } from '../slices/documents/schema'
 import { leads } from '../slices/leads/schema'
-import { conversations, messages } from '../slices/conversations/schema'
+import { users } from '../slices/users/schema'
 import { getDb, initDb } from './client'
 
 async function seed() {
-	const dbUrl = process.env.DATABASE_URL ?? 'postgresql://skeleton:skeleton@localhost:5433/skeleton'
+	const dbUrl = process.env.DATABASE_URL ?? 'postgresql://mvp:mvp@localhost:5433/mvp'
 	initDb(dbUrl)
 	const db = getDb()
 

@@ -3,14 +3,7 @@ import { Button } from '@/ui/button'
 import { Separator } from '@/ui/separator'
 import { Toaster } from '@/ui/sonner'
 import { Link, Outlet, createRootRoute, useLocation, useNavigate } from '@tanstack/react-router'
-import {
-	Bot,
-	FileText,
-	LayoutDashboard,
-	LogOut,
-	MessageSquare,
-	Users,
-} from 'lucide-react'
+import { Bot, FileText, LayoutDashboard, LogOut, MessageSquare, Users } from 'lucide-react'
 
 export const Route = createRootRoute({
 	component: RootLayout,
@@ -93,11 +86,7 @@ function NavLink({
 
 	return (
 		<Link to={to}>
-			<Button
-				variant={isActive ? 'secondary' : 'ghost'}
-				size="sm"
-				className="w-full justify-start"
-			>
+			<Button variant={isActive ? 'secondary' : 'ghost'} size="sm" className="w-full justify-start">
 				<Icon className="mr-2 h-4 w-4" />
 				{label}
 			</Button>

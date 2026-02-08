@@ -1,5 +1,5 @@
-import { Button } from '@/ui/button'
 import { Badge } from '@/ui/badge'
+import { Button } from '@/ui/button'
 import type { Bot } from '@repo/shared'
 import { Edit, Trash2 } from 'lucide-react'
 import { useState } from 'react'
@@ -23,7 +23,9 @@ export function BotTable({ bots }: BotTableProps) {
 	if (bots.length === 0) {
 		return (
 			<div className="flex h-48 items-center justify-center rounded-md border border-border bg-muted/30">
-				<p className="text-muted-foreground">No bots found. Create your first bot to get started.</p>
+				<p className="text-muted-foreground">
+					No bots found. Create your first bot to get started.
+				</p>
 			</div>
 		)
 	}
@@ -56,18 +58,10 @@ export function BotTable({ bots }: BotTableProps) {
 								</td>
 								<td className="px-4 py-3 text-right">
 									<div className="flex items-center justify-end gap-2">
-										<Button
-											variant="ghost"
-											size="icon"
-											onClick={() => setEditingBot(bot)}
-										>
+										<Button variant="ghost" size="icon" onClick={() => setEditingBot(bot)}>
 											<Edit className="h-4 w-4" />
 										</Button>
-										<Button
-											variant="ghost"
-											size="icon"
-											onClick={() => handleDelete(bot.id)}
-										>
+										<Button variant="ghost" size="icon" onClick={() => handleDelete(bot.id)}>
 											<Trash2 className="h-4 w-4" />
 										</Button>
 									</div>

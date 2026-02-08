@@ -11,12 +11,11 @@ function getAuthToken(): string | null {
 // TODO: Add AppType import from @repo/api once TypeScript workspace type resolution is configured
 export function getApiClient() {
 	const token = getAuthToken()
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	// biome-ignore lint/suspicious/noExplicitAny: AppType cross-package inference not yet configured
 	const client = hc<any>('/', {
 		headers: token ? { Authorization: `Bearer ${token}` } : {},
 	})
-	// Runtime works correctly - Hono RPC creates properties dynamically
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	// biome-ignore lint/suspicious/noExplicitAny: Runtime works correctly via Hono RPC dynamic properties
 	return client as any
 }
 

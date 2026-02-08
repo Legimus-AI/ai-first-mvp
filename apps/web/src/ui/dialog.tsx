@@ -1,6 +1,6 @@
 import { cn } from '@/lib/cn'
 import { X } from 'lucide-react'
-import { useEffect, type ReactNode } from 'react'
+import { type ReactNode, useEffect } from 'react'
 import { Button } from './button'
 
 export interface DialogProps {
@@ -26,7 +26,14 @@ export function Dialog({ open, onClose, children, className }: DialogProps) {
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center">
-			<div className="fixed inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
+			<div
+				className="fixed inset-0 bg-background/80 backdrop-blur-sm"
+				onClick={onClose}
+				onKeyDown={(e) => e.key === 'Escape' && onClose()}
+				role="button"
+				tabIndex={-1}
+				aria-label="Close dialog"
+			/>
 			<div
 				className={cn(
 					'relative z-50 w-full max-w-lg rounded-lg border border-border bg-background shadow-lg',
@@ -59,13 +66,18 @@ export function DialogClose({ onClose }: { onClose: () => void }) {
 	)
 }
 
-export function DialogContent({ children, className }: { children: ReactNode; className?: string }) {
+export function DialogContent({
+	children,
+	className,
+}: { children: ReactNode; className?: string }) {
 	return <div className={cn('p-6', className)}>{children}</div>
 }
 
 export function DialogFooter({ children, className }: { children: ReactNode; className?: string }) {
 	return (
-		<div className={cn('flex items-center justify-end gap-2 border-t border-border p-6', className)}>
+		<div
+			className={cn('flex items-center justify-end gap-2 border-t border-border p-6', className)}
+		>
 			{children}
 		</div>
 	)

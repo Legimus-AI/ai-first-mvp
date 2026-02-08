@@ -15,8 +15,7 @@ function DashboardPage() {
 
 	const totalBots = botsData?.meta.total ?? 0
 	const totalLeads = leadsData?.meta.total ?? 0
-	const activeBots =
-		botsData?.data.filter((bot: { isActive: boolean }) => bot.isActive).length ?? 0
+	const activeBots = botsData?.data.filter((bot: { isActive: boolean }) => bot.isActive).length ?? 0
 
 	return (
 		<div className="p-8">
@@ -26,12 +25,7 @@ function DashboardPage() {
 			</div>
 
 			<div className="grid gap-6 md:grid-cols-3">
-				<StatCard
-					icon={Bot}
-					title="Total Bots"
-					value={totalBots}
-					isLoading={isLoadingBots}
-				/>
+				<StatCard icon={Bot} title="Total Bots" value={totalBots} isLoading={isLoadingBots} />
 				<StatCard
 					icon={TrendingUp}
 					title="Active Bots"

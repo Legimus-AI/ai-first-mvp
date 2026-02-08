@@ -8,8 +8,8 @@ import {
 	DialogTitle,
 } from '@/ui/dialog'
 import { Input } from '@/ui/input'
-import { type Bot, type CreateDocument, type Document, createDocumentSchema } from '@repo/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { type Bot, type CreateDocument, type Document, createDocumentSchema } from '@repo/shared'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useCreateDocument, useUpdateDocument } from '../hooks/use-documents'
@@ -96,9 +96,7 @@ export function DocumentForm({ open, onClose, document, bots }: DocumentFormProp
 										</option>
 									))}
 								</select>
-								{errors.botId && (
-									<p className="text-sm text-destructive">{errors.botId.message}</p>
-								)}
+								{errors.botId && <p className="text-sm text-destructive">{errors.botId.message}</p>}
 							</div>
 						)}
 
@@ -112,9 +110,7 @@ export function DocumentForm({ open, onClose, document, bots }: DocumentFormProp
 								error={!!errors.title}
 								placeholder="Return Policy"
 							/>
-							{errors.title && (
-								<p className="text-sm text-destructive">{errors.title.message}</p>
-							)}
+							{errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
 						</div>
 
 						<div className="space-y-2">

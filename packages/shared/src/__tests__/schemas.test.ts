@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { botSchema, createBotSchema, updateBotSchema } from '../slices/bots/schemas'
-import { userSchema, createUserSchema, loginSchema } from '../slices/users/schemas'
 import { chatRequestSchema, chatResponseSchema } from '../slices/conversations/schemas'
-import { leadSchema, createLeadSchema } from '../slices/leads/schemas'
-import { documentSchema, createDocumentSchema } from '../slices/documents/schemas'
+import { createDocumentSchema, documentSchema } from '../slices/documents/schemas'
+import { createLeadSchema, leadSchema } from '../slices/leads/schemas'
+import { createUserSchema, loginSchema, userSchema } from '../slices/users/schemas'
 
 describe('userSchema', () => {
 	const validUser = {

@@ -1,7 +1,7 @@
-import bcrypt from 'bcryptjs'
-import { sign } from 'hono/jwt'
-import { eq } from 'drizzle-orm'
 import { AppError, type CreateUser } from '@repo/shared'
+import bcrypt from 'bcryptjs'
+import { eq } from 'drizzle-orm'
+import { sign } from 'hono/jwt'
 import type { getDb } from '../../db/client'
 import { users } from '../users/schema'
 
@@ -30,7 +30,6 @@ export async function register(db: ReturnType<typeof getDb>, data: CreateUser) {
 		.returning()
 
 	// Return user without password hash
-	// biome-ignore lint/performance/noDelete: Need to remove sensitive field
 	const { passwordHash: _, ...userWithoutPassword } = user
 	return userWithoutPassword
 }
@@ -50,7 +49,6 @@ export async function login(db: ReturnType<typeof getDb>, email: string, passwor
 	}
 
 	// Return user without password hash
-	// biome-ignore lint/performance/noDelete: Need to remove sensitive field
 	const { passwordHash: _, ...userWithoutPassword } = user
 	return userWithoutPassword
 }

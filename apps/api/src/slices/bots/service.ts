@@ -1,4 +1,3 @@
-import { count, eq, ilike, sql } from 'drizzle-orm'
 import {
 	AppError,
 	type CreateBot,
@@ -6,6 +5,7 @@ import {
 	type UpdateBot,
 	buildPaginationMeta,
 } from '@repo/shared'
+import { count, eq, ilike, sql } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
 import { bots } from './schema'
 
@@ -28,10 +28,7 @@ export async function listBots(db: ReturnType<typeof getDb>, query: ListQuery) {
 			)
 			.offset(offset)
 			.limit(query.limit),
-		db
-			.select({ count: count() })
-			.from(bots)
-			.where(searchCondition),
+		db.select({ count: count() }).from(bots).where(searchCondition),
 	])
 
 	const sanitizedItems = items.map((bot) => ({
@@ -60,11 +57,7 @@ export async function getBotById(db: ReturnType<typeof getDb>, id: string) {
 	}
 }
 
-export async function createBot(
-	db: ReturnType<typeof getDb>,
-	data: CreateBot,
-	userId: string,
-) {
+export async function createBot(db: ReturnType<typeof getDb>, data: CreateBot, userId: string) {
 	const [bot] = await db
 		.insert(bots)
 		.values({

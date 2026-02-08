@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi'
+import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import {
 	AppError,
 	authResponseSchema,
@@ -149,7 +149,6 @@ app.openapi(meRoute, async (c) => {
 		throw AppError.notFound('User not found')
 	}
 
-	// biome-ignore lint/performance/noDelete: Need to remove sensitive field
 	const { passwordHash: _, ...userWithoutPassword } = user
 
 	return c.json({

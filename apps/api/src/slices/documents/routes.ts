@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi'
+import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import {
 	createDocumentSchema,
 	documentSchema,
@@ -19,7 +19,10 @@ import {
 const app = new OpenAPIHono()
 
 const idParamSchema = z.object({
-	id: z.string().uuid().openapi({ param: { name: 'id', in: 'path' } }),
+	id: z
+		.string()
+		.uuid()
+		.openapi({ param: { name: 'id', in: 'path' } }),
 })
 
 // GET /

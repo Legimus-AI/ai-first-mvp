@@ -1,7 +1,7 @@
+import { useBots } from '@/slices/bots/hooks/use-bots'
 import { DocumentForm } from '@/slices/documents/components/document-form'
 import { DocumentTable } from '@/slices/documents/components/document-table'
 import { useDocuments } from '@/slices/documents/hooks/use-documents'
-import { useBots } from '@/slices/bots/hooks/use-bots'
 import { Button } from '@/ui/button'
 import { Skeleton } from '@/ui/skeleton'
 import { createFileRoute } from '@tanstack/react-router'

@@ -20,9 +20,7 @@ export async function generateChatResponse(ctx: ChatContext): Promise<string> {
 	const model = _genAI.getGenerativeModel({ model: ctx.model || 'gemini-2.0-flash' })
 
 	const docsContext =
-		ctx.documents.length > 0
-			? `\n\nKnowledge base:\n${ctx.documents.join('\n---\n')}`
-			: ''
+		ctx.documents.length > 0 ? `\n\nKnowledge base:\n${ctx.documents.join('\n---\n')}` : ''
 
 	const chat = model.startChat({
 		history: ctx.history,

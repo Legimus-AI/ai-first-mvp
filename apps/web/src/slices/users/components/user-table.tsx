@@ -1,5 +1,5 @@
-import { Button } from '@/ui/button'
 import { Badge } from '@/ui/badge'
+import { Button } from '@/ui/button'
 import type { User } from '@repo/shared'
 import { Edit, Trash2 } from 'lucide-react'
 import { useState } from 'react'
@@ -56,18 +56,10 @@ export function UserTable({ users }: UserTableProps) {
 								</td>
 								<td className="px-4 py-3 text-right">
 									<div className="flex items-center justify-end gap-2">
-										<Button
-											variant="ghost"
-											size="icon"
-											onClick={() => setEditingUser(user)}
-										>
+										<Button variant="ghost" size="icon" onClick={() => setEditingUser(user)}>
 											<Edit className="h-4 w-4" />
 										</Button>
-										<Button
-											variant="ghost"
-											size="icon"
-											onClick={() => handleDelete(user.id)}
-										>
+										<Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)}>
 											<Trash2 className="h-4 w-4" />
 										</Button>
 									</div>

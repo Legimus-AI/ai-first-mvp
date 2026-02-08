@@ -60,6 +60,7 @@ function ChatWidget() {
 			})
 	}, [botId])
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: messages triggers scroll on change
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
 	}, [messages])

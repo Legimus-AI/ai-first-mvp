@@ -1,5 +1,5 @@
 import type { User } from '@repo/shared'
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { type ReactNode, createContext, useContext, useEffect, useState } from 'react'
 import { getApiClient } from './api-client'
 
 interface AuthContextValue {

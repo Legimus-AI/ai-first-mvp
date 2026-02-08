@@ -14,7 +14,9 @@ export function getRedis(): Redis {
 
 const CONTEXT_TTL = 3600 // 1 hour
 
-export async function getCachedMessages(conversationId: string): Promise<Array<{ role: string; content: string }> | null> {
+export async function getCachedMessages(
+	conversationId: string,
+): Promise<Array<{ role: string; content: string }> | null> {
 	const redis = getRedis()
 	const cached = await redis.get(`conv:${conversationId}:messages`)
 	if (!cached) return null
