@@ -403,7 +403,7 @@ Every CRUD slice MUST have tests matching these IDs. The generator scaffolds `it
 | Contract tests (all slices) | < 100ms | ~1ms |
 | Integration tests (per slice) | < 1s | ~200ms |
 | Middleware tests | < 100ms | ~50ms |
-| **Full suite** | **< 5s** | **3.7s (87 tests)** |
+| **Full suite** | **< 5s** | **1.1s (165 tests)** |
 
 ## Environment variables
 
