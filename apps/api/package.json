@@ -37,10 +37,10 @@
 		"@types/bcryptjs": "^3.0.0",
 		"@types/ioredis": "^5.0.0",
 		"@types/node": "^25.2.2",
-		"drizzle-kit": "^0.30.0",
-		"esbuild": "^0.24.0",
+		"drizzle-kit": "^0.31.8",
+		"esbuild": "^0.27.3",
 		"tsx": "^4.21.0",
 		"typescript": "^5.7.0",
-		"vitest": "^3.0.0"
+		"vitest": "^4.0.18"
 	}
 }
