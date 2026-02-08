@@ -4,6 +4,7 @@ import { honoLogger } from '@logtape/hono'
 import { AppError } from '@repo/shared'
 import { cors } from 'hono/cors'
 import { secureHeaders } from 'hono/secure-headers'
+import { ZodError } from 'zod'
 import { checkDbHealth } from './db/client'
 import { checkRedisHealth } from './lib/redis'
 import { getAppLogger } from './logger'
@@ -94,7 +95,17 @@ export function createApp(config: AppConfig = {}): OpenAPIHono {
 			message: err.message,
 			requestId: rid,
 		})
-		return c.json({ error: { code, message: err.message, requestId: rid } }, status as 400 | 500)
+
+		// Extract field-level errors from Zod for better DX
+		const zodError = err instanceof ZodError ? err : err.cause instanceof ZodError ? err.cause : null
+		const fields = zodError
+			? Object.fromEntries(zodError.issues.map((i) => [i.path.join('.'), i.message]))
+			: undefined
+
+		return c.json(
+			{ error: { code, message: err.message, requestId: rid, ...(fields && { fields }) } },
+			status as 400 | 500,
+		)
 	})
 
 	app.notFound((c) => {

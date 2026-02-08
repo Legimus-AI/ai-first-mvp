@@ -25,3 +25,7 @@ export async function checkDbHealth(): Promise<boolean> {
 		return false
 	}
 }
+
+export async function closeDb(): Promise<void> {
+	if (_sql) await _sql.end()
+}

@@ -40,3 +40,7 @@ export async function checkRedisHealth(): Promise<boolean> {
 		return false
 	}
 }
+
+export async function closeRedis(): Promise<void> {
+	if (_redis) await _redis.quit()
+}
