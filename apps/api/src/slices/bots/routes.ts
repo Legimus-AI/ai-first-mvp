@@ -4,12 +4,12 @@ import {
 	bulkDeleteResponseSchema,
 	bulkDeleteSchema,
 	createBotSchema,
-	errorResponseSchema,
 	listQuerySchema,
 	paginationMetaSchema,
 	updateBotSchema,
 } from '@repo/shared'
 import { getDb } from '../../db/client'
+import { errorResponses } from '../../lib/openapi-errors'
 import { bulkDeleteBots, createBot, deleteBot, getBotById, listBots, updateBot } from './service'
 
 const app = new OpenAPIHono()
@@ -74,6 +74,7 @@ const bulkDeleteRoute = createRoute({
 			},
 			description: 'Bulk delete result',
 		},
+		...errorResponses(400),
 	},
 })
 
@@ -101,6 +102,7 @@ const getByIdRoute = createRoute({
 			},
 			description: 'Bot details',
 		},
+		...errorResponses(404),
 	},
 })
 
@@ -134,6 +136,7 @@ const createRoute_ = createRoute({
 			},
 			description: 'Bot created',
 		},
+		...errorResponses(400),
 	},
 })
 
@@ -175,6 +178,7 @@ const updateRoute = createRoute({
 			},
 			description: 'Bot updated',
 		},
+		...errorResponses(400, 404),
 	},
 })
 
@@ -198,6 +202,7 @@ const deleteRoute = createRoute({
 		204: {
 			description: 'Bot deleted',
 		},
+		...errorResponses(404),
 	},
 })
 

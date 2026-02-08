@@ -6,12 +6,12 @@ import {
 	chatResponseSchema,
 	conversationSchema,
 	conversationWithMessagesSchema,
-	errorResponseSchema,
 	listQuerySchema,
 	messageSchema,
 	paginationMetaSchema,
 } from '@repo/shared'
 import { getDb } from '../../db/client'
+import { errorResponses } from '../../lib/openapi-errors'
 import {
 	bulkDeleteConversations,
 	chat,
@@ -94,6 +94,7 @@ const bulkDeleteRoute = createRoute({
 			},
 			description: 'Bulk delete result',
 		},
+		...errorResponses(400),
 	},
 })
 
@@ -121,6 +122,7 @@ const getByIdRoute = createRoute({
 			},
 			description: 'Conversation with messages',
 		},
+		...errorResponses(404),
 	},
 })
 
@@ -143,6 +145,7 @@ const deleteRoute = createRoute({
 		204: {
 			description: 'Conversation deleted',
 		},
+		...errorResponses(404),
 	},
 })
 
@@ -180,6 +183,7 @@ const chatRoute = createRoute({
 			},
 			description: 'Chat response',
 		},
+		...errorResponses(400, 404),
 	},
 })
 
@@ -212,6 +216,7 @@ const historyRoute = createRoute({
 			},
 			description: 'Message history',
 		},
+		...errorResponses(404),
 	},
 })
 

@@ -3,13 +3,13 @@ import {
 	bulkDeleteResponseSchema,
 	bulkDeleteSchema,
 	createLeadSchema,
-	errorResponseSchema,
 	leadSchema,
 	listQuerySchema,
 	paginationMetaSchema,
 	updateLeadSchema,
 } from '@repo/shared'
 import { getDb } from '../../db/client'
+import { errorResponses } from '../../lib/openapi-errors'
 import { bulkDeleteLeads, createLead, deleteLead, getLeadById, listLeads, updateLead } from './service'
 
 const app = new OpenAPIHono()
@@ -77,6 +77,7 @@ const bulkDeleteRoute = createRoute({
 			},
 			description: 'Bulk delete result',
 		},
+		...errorResponses(400),
 	},
 })
 
@@ -104,6 +105,7 @@ const getByIdRoute = createRoute({
 			},
 			description: 'Lead details',
 		},
+		...errorResponses(404),
 	},
 })
 
@@ -137,6 +139,7 @@ const createRoute_ = createRoute({
 			},
 			description: 'Lead created',
 		},
+		...errorResponses(400),
 	},
 })
 
@@ -171,6 +174,7 @@ const updateRoute = createRoute({
 			},
 			description: 'Lead updated',
 		},
+		...errorResponses(400, 404),
 	},
 })
 
@@ -194,6 +198,7 @@ const deleteRoute = createRoute({
 		204: {
 			description: 'Lead deleted',
 		},
+		...errorResponses(404),
 	},
 })
 

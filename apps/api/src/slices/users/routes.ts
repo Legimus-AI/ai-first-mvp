@@ -3,13 +3,13 @@ import {
 	bulkDeleteResponseSchema,
 	bulkDeleteSchema,
 	createUserSchema,
-	errorResponseSchema,
 	listQuerySchema,
 	paginationMetaSchema,
 	updateUserSchema,
 	userSchema,
 } from '@repo/shared'
 import { getDb } from '../../db/client'
+import { errorResponses } from '../../lib/openapi-errors'
 import { bulkDeleteUsers, createUser, deleteUser, getUserById, listUsers, updateUser } from './service'
 
 const app = new OpenAPIHono()
@@ -74,6 +74,7 @@ const bulkDeleteRoute = createRoute({
 			},
 			description: 'Bulk delete result',
 		},
+		...errorResponses(400),
 	},
 })
 
@@ -101,6 +102,7 @@ const getByIdRoute = createRoute({
 			},
 			description: 'User details',
 		},
+		...errorResponses(404),
 	},
 })
 
@@ -134,6 +136,7 @@ const createRoute_ = createRoute({
 			},
 			description: 'User created',
 		},
+		...errorResponses(400, 409),
 	},
 })
 
@@ -168,6 +171,7 @@ const updateRoute = createRoute({
 			},
 			description: 'User updated',
 		},
+		...errorResponses(400, 404),
 	},
 })
 
@@ -191,6 +195,7 @@ const deleteRoute = createRoute({
 		204: {
 			description: 'User deleted',
 		},
+		...errorResponses(404),
 	},
 })
 

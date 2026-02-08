@@ -4,12 +4,12 @@ import {
 	bulkDeleteSchema,
 	createDocumentSchema,
 	documentSchema,
-	errorResponseSchema,
 	listQuerySchema,
 	paginationMetaSchema,
 	updateDocumentSchema,
 } from '@repo/shared'
 import { getDb } from '../../db/client'
+import { errorResponses } from '../../lib/openapi-errors'
 import {
 	bulkDeleteDocuments,
 	createDocument,
@@ -84,6 +84,7 @@ const bulkDeleteRoute = createRoute({
 			},
 			description: 'Bulk delete result',
 		},
+		...errorResponses(400),
 	},
 })
 
@@ -111,6 +112,7 @@ const getByIdRoute = createRoute({
 			},
 			description: 'Document details',
 		},
+		...errorResponses(404),
 	},
 })
 
@@ -144,6 +146,7 @@ const createRoute_ = createRoute({
 			},
 			description: 'Document created',
 		},
+		...errorResponses(400),
 	},
 })
 
@@ -178,6 +181,7 @@ const updateRoute = createRoute({
 			},
 			description: 'Document updated',
 		},
+		...errorResponses(400, 404),
 	},
 })
 
@@ -201,6 +205,7 @@ const deleteRoute = createRoute({
 		204: {
 			description: 'Document deleted',
 		},
+		...errorResponses(404),
 	},
 })
 
