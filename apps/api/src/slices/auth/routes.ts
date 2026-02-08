@@ -7,7 +7,7 @@ import {
 	userSchema,
 } from '@repo/shared'
 import { getDb } from '../../db/client'
-import { errorResponses } from '../../lib/openapi-errors'
+import { AUTH_ERRORS, PUBLIC_ERRORS, errorResponses } from '../../lib/openapi-errors'
 import { generateToken, login, register } from './service'
 
 const app = new OpenAPIHono()
@@ -36,6 +36,7 @@ const registerRoute = createRoute({
 			description: 'User registered successfully',
 		},
 		...errorResponses(400, 409),
+		...PUBLIC_ERRORS,
 	},
 })
 
@@ -89,6 +90,7 @@ const loginRoute = createRoute({
 			description: 'Login successful',
 		},
 		...errorResponses(400, 401),
+		...PUBLIC_ERRORS,
 	},
 })
 
@@ -132,7 +134,8 @@ const meRoute = createRoute({
 			},
 			description: 'Current user',
 		},
-		...errorResponses(401, 404),
+		...errorResponses(404),
+		...AUTH_ERRORS,
 	},
 })
 
