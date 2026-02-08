@@ -77,6 +77,7 @@ Run `pnpm generate:slice <name>` to scaffold, then:
 - **UI primitives:** Reusable components live in `apps/web/src/ui/` (shadcn/ui pattern, copy-paste owned)
 - **v0 for UI generation:** Use [v0.dev](https://v0.dev) to generate shadcn/ui components. Always prompt with "React + Vite, NO Next.js, NO server components". Adapt imports from `@/components/ui/` to `@/ui/`.
 - **Small files:** Max ~200 lines per file. Split if larger.
+- **Always verify after changes:** Run `pnpm lint` (NOT just `pnpm typecheck`) after writing code. Biome enforces formatting rules (line length, JSX attribute style, argument wrapping) that `typecheck` does not catch. If lint fails, run `pnpm lint:fix` and commit the result.
 
 ### Naming
 
