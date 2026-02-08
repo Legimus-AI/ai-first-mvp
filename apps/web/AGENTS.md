@@ -38,6 +38,11 @@ All components and views MUST be responsive:
 - Scale up with `sm:`, `md:`, `lg:`, `xl:` prefixes
 - Use `flex` / `grid` with responsive columns: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
 - Never use fixed widths — prefer `max-w-*` and responsive breakpoints
+- Page padding: `p-4 md:p-8` (not `p-8` — too much on mobile)
+- Headings: `text-2xl md:text-3xl` (not `text-3xl`)
+- Page headers with action buttons: `flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`
+- Tables: wrap in `overflow-x-auto` container for horizontal scroll on mobile
+- Sidebar layout: hidden on mobile with hamburger menu (`md:hidden` / `hidden md:block`), overlay with backdrop on mobile
 
 ### Dark Mode
 
