@@ -7,8 +7,7 @@ export function ThemeToggle() {
 		if (typeof window === 'undefined') return false
 		return (
 			localStorage.getItem('theme') === 'dark' ||
-			(!localStorage.getItem('theme') &&
-				window.matchMedia('(prefers-color-scheme: dark)').matches)
+			(!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)
 		)
 	})
 
@@ -24,8 +23,13 @@ export function ThemeToggle() {
 	}, [dark])
 
 	return (
-		<Button variant='ghost' size='sm' className='w-full justify-start' onClick={() => setDark(!dark)}>
-			{dark ? <Sun className='mr-2 h-4 w-4' /> : <Moon className='mr-2 h-4 w-4' />}
+		<Button
+			variant="ghost"
+			size="sm"
+			className="w-full justify-start"
+			onClick={() => setDark(!dark)}
+		>
+			{dark ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
 			{dark ? 'Light Mode' : 'Dark Mode'}
 		</Button>
 	)

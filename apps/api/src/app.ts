@@ -97,7 +97,8 @@ export function createApp(config: AppConfig = {}): OpenAPIHono {
 		})
 
 		// Extract field-level errors from Zod for better DX
-		const zodError = err instanceof ZodError ? err : err.cause instanceof ZodError ? err.cause : null
+		const zodError =
+			err instanceof ZodError ? err : err.cause instanceof ZodError ? err.cause : null
 		const fields = zodError
 			? Object.fromEntries(zodError.issues.map((i) => [i.path.join('.'), i.message]))
 			: undefined
@@ -129,7 +130,10 @@ export function createApp(config: AppConfig = {}): OpenAPIHono {
 		const uptime = Math.floor(performance.now() / 1000)
 		const status = dbOk && redisOk ? 'ok' : 'degraded'
 		const statusCode = dbOk ? 200 : 503
-		return c.json({ status, db: dbOk ? 'ok' : 'down', redis: redisOk ? 'ok' : 'down', uptime }, statusCode)
+		return c.json(
+			{ status, db: dbOk ? 'ok' : 'down', redis: redisOk ? 'ok' : 'down', uptime },
+			statusCode,
+		)
 	})
 
 	// --- Routes ---
