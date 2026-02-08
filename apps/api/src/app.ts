@@ -43,7 +43,7 @@ export function createApp(config: AppConfig = {}): OpenAPIHono {
 	if (config.jwtSecret) {
 		app.use(
 			'*',
-			authGuard({ secret: config.jwtSecret, exclude: ['/health', '/api/chat', '/api/auth'] }),
+			authGuard({ secret: config.jwtSecret, exclude: ['/health', '/doc', '/ui', '/api/chat', '/api/auth'] }),
 		)
 	}
 
