@@ -150,6 +150,9 @@ Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these)
 | Skeleton | `skeleton.tsx` | Loading placeholder |
 | Separator | `separator.tsx` | Horizontal/vertical divider |
 | Sonner | `sonner.tsx` | Toast notifications (via `sonner` library) |
+| AlertDialog | `alert-dialog.tsx` | Confirmation for destructive actions (via Radix) |
+| Dialog | `dialog.tsx` | Modal forms and detail views |
+| DropdownMenu | `dropdown-menu.tsx` | Row actions in tables/lists (via Radix) |
 
 Use `cn()` from `src/lib/utils.ts` to merge classes: `cn('base-class', conditional && 'active-class')`.
 
