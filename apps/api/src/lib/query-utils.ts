@@ -27,15 +27,15 @@ export async function paginatedList<TTable extends PgTableWithColumns<any>>(
 	// 1. Build search condition
 	let searchCondition: SQL | undefined
 
-	if (query.filter && query.fields) {
-		// Todofull pattern: filter=value&fields=col1,col2
+	if (query.filterValue && query.filterFields) {
+		// Targeted search: filterValue=val&filterFields=col1,col2
 		// Fields are resolved against sortColumns whitelist (security: only allowed columns)
-		const requestedFields = query.fields.split(',').map((f) => f.trim())
+		const requestedFields = query.filterFields.split(',').map((f) => f.trim())
 		const resolvedColumns = requestedFields
 			.map((name) => sortColumns[name])
 			.filter((col): col is PgColumn => col !== undefined)
 		if (resolvedColumns.length > 0) {
-			const conditions = resolvedColumns.map((col) => ilike(col, `%${query.filter}%`))
+			const conditions = resolvedColumns.map((col) => ilike(col, `%${query.filterValue}%`))
 			searchCondition = conditions.length === 1 ? conditions[0] : or(...conditions)
 		}
 	} else if (query.search && searchColumns.length > 0) {
