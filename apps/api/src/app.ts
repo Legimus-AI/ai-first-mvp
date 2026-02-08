@@ -52,7 +52,7 @@ export function createApp(config: AppConfig = {}): OpenAPIHono {
 			'*',
 			authGuard({
 				secret,
-				exclude: ['/health', '/doc', '/ui', '/api/chat', '/api/auth'],
+				exclude: ['/health', '/doc', '/ui', '/api/chat', '/api/auth/register', '/api/auth/login'],
 			}),
 		)
 
