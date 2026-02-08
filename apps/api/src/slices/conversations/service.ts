@@ -1,5 +1,5 @@
 import { AppError, type ListQuery } from '@repo/shared'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
 import { generateChatResponse } from '../../lib/gemini'
 import { paginatedList } from '../../lib/query-utils'
@@ -194,4 +194,19 @@ export async function getConversationHistory(
 		...msg,
 		createdAt: msg.createdAt.toISOString(),
 	}))
+}
+
+export async function deleteConversation(db: ReturnType<typeof getDb>, id: string) {
+	const [deleted] = await db.delete(conversations).where(eq(conversations.id, id)).returning()
+
+	if (!deleted) {
+		throw AppError.notFound('Conversation not found')
+	}
+
+	return deleted
+}
+
+export async function bulkDeleteConversations(db: ReturnType<typeof getDb>, ids: string[]) {
+	await db.delete(conversations).where(inArray(conversations.id, ids))
+	return { deleted: ids.length }
 }

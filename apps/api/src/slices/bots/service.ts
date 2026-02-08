@@ -4,7 +4,7 @@ import {
 	type ListQuery,
 	type UpdateBot,
 } from '@repo/shared'
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
 import { paginatedList } from '../../lib/query-utils'
 import { bots } from './schema'
@@ -89,4 +89,9 @@ export async function deleteBot(db: ReturnType<typeof getDb>, id: string) {
 	}
 
 	return deleted
+}
+
+export async function bulkDeleteBots(db: ReturnType<typeof getDb>, ids: string[]) {
+	await db.delete(bots).where(inArray(bots.id, ids))
+	return { deleted: ids.length }
 }

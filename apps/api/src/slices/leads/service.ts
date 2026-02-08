@@ -1,5 +1,5 @@
-import { AppError, type CreateLead, type ListQuery } from '@repo/shared'
-import { and, eq } from 'drizzle-orm'
+import { AppError, type CreateLead, type ListQuery, type UpdateLead } from '@repo/shared'
+import { and, eq, inArray } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
 import { paginatedList } from '../../lib/query-utils'
 import { leads } from './schema'
@@ -59,6 +59,7 @@ export async function createLead(db: ReturnType<typeof getDb>, data: CreateLead)
 
 		return {
 			...updated,
+			metadata: updated.metadata as Record<string, unknown> | null,
 			createdAt: updated.createdAt.toISOString(),
 		}
 	}
@@ -70,6 +71,23 @@ export async function createLead(db: ReturnType<typeof getDb>, data: CreateLead)
 		...lead,
 		metadata: lead.metadata as Record<string, unknown> | null,
 		createdAt: lead.createdAt.toISOString(),
+	}
+}
+
+export async function updateLead(db: ReturnType<typeof getDb>, id: string, data: UpdateLead) {
+	const [existing] = await db.select().from(leads).where(eq(leads.id, id)).limit(1)
+
+	if (!existing) {
+		throw AppError.notFound('Lead not found')
+	}
+
+	// Note: leads table has no updatedAt column — just update the fields
+	const [updated] = await db.update(leads).set(data).where(eq(leads.id, id)).returning()
+
+	return {
+		...updated,
+		metadata: updated.metadata as Record<string, unknown> | null,
+		createdAt: updated.createdAt.toISOString(),
 	}
 }
 
@@ -85,4 +103,9 @@ export async function deleteLead(db: ReturnType<typeof getDb>, id: string) {
 	}
 
 	return deleted
+}
+
+export async function bulkDeleteLeads(db: ReturnType<typeof getDb>, ids: string[]) {
+	await db.delete(leads).where(inArray(leads.id, ids))
+	return { deleted: ids.length }
 }

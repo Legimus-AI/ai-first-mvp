@@ -4,7 +4,7 @@ import {
 	type ListQuery,
 	type UpdateDocument,
 } from '@repo/shared'
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
 import { paginatedList } from '../../lib/query-utils'
 import { documents } from './schema'
@@ -98,4 +98,9 @@ export async function getDocumentsByBotId(db: ReturnType<typeof getDb>, botId: s
 	const docs = await db.select().from(documents).where(eq(documents.botId, botId))
 
 	return docs.map((doc) => `# ${doc.title}\n\n${doc.content}`)
+}
+
+export async function bulkDeleteDocuments(db: ReturnType<typeof getDb>, ids: string[]) {
+	await db.delete(documents).where(inArray(documents.id, ids))
+	return { deleted: ids.length }
 }
