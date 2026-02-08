@@ -2,6 +2,7 @@ import { useAuth } from '@/lib/auth'
 import { Button } from '@/ui/button'
 import { Separator } from '@/ui/separator'
 import { Toaster } from '@/ui/sonner'
+import { ThemeToggle } from '@/ui/theme-toggle'
 import { Link, Outlet, createRootRoute, useLocation, useNavigate } from '@tanstack/react-router'
 import { Bot, FileText, LayoutDashboard, LogOut, MessageSquare, Users } from 'lucide-react'
 
@@ -53,6 +54,9 @@ function RootLayout() {
 					<NavLink to="/users" icon={Users} label="Users" />
 				</nav>
 				<Separator className="mx-4" />
+				<div className="px-4 pt-2">
+					<ThemeToggle />
+				</div>
 				<div className="p-4">
 					<Button
 						variant="ghost"
