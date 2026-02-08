@@ -125,7 +125,12 @@ export async function listConversations(
 	const { data, meta } = await paginatedList(db, query, {
 		table: conversations,
 		searchColumns: [conversations.title, conversations.senderId],
-		sortColumns: { title: conversations.title, senderId: conversations.senderId, createdAt: conversations.createdAt, updatedAt: conversations.updatedAt },
+		sortColumns: {
+			title: conversations.title,
+			senderId: conversations.senderId,
+			createdAt: conversations.createdAt,
+			updatedAt: conversations.updatedAt,
+		},
 		extraWhere: botId ? eq(conversations.botId, botId) : undefined,
 	})
 

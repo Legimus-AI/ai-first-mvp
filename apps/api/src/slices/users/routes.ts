@@ -10,7 +10,14 @@ import {
 } from '@repo/shared'
 import { getDb } from '../../db/client'
 import { ADMIN_ERRORS, errorResponses } from '../../lib/openapi-errors'
-import { bulkDeleteUsers, createUser, deleteUser, getUserById, listUsers, updateUser } from './service'
+import {
+	bulkDeleteUsers,
+	createUser,
+	deleteUser,
+	getUserById,
+	listUsers,
+	updateUser,
+} from './service'
 
 const app = new OpenAPIHono()
 

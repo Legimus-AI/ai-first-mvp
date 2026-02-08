@@ -11,7 +11,13 @@ export async function listUsers(db: ReturnType<typeof getDb>, query: ListQuery) 
 	const { data, meta } = await paginatedList(db, query, {
 		table: users,
 		searchColumns: [users.name, users.email],
-		sortColumns: { name: users.name, email: users.email, role: users.role, createdAt: users.createdAt, updatedAt: users.updatedAt },
+		sortColumns: {
+			name: users.name,
+			email: users.email,
+			role: users.role,
+			createdAt: users.createdAt,
+			updatedAt: users.updatedAt,
+		},
 	})
 
 	return {

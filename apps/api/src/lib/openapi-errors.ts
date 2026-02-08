@@ -23,7 +23,11 @@ const ERROR_CONFIGS: Record<number, ErrorConfig> = {
 	403: { code: 'FORBIDDEN', message: 'Insufficient permissions', description: 'Forbidden' },
 	404: { code: 'NOT_FOUND', message: 'Resource not found', description: 'Not found' },
 	409: { code: 'CONFLICT', message: 'Resource already exists', description: 'Conflict' },
-	429: { code: 'RATE_LIMITED', message: 'Too many requests, retry after Retry-After seconds', description: 'Rate limited' },
+	429: {
+		code: 'RATE_LIMITED',
+		message: 'Too many requests, retry after Retry-After seconds',
+		description: 'Rate limited',
+	},
 	500: { code: 'INTERNAL_ERROR', message: 'Internal server error', description: 'Internal error' },
 }
 
@@ -55,7 +59,13 @@ const ERROR_SCHEMAS: Record<number, ReturnType<typeof buildErrorSchema>> = {
 }
 
 export function errorResponses(...codes: number[]) {
-	const result: Record<number, { content: { 'application/json': { schema: (typeof ERROR_SCHEMAS)[number] } }; description: string }> = {}
+	const result: Record<
+		number,
+		{
+			content: { 'application/json': { schema: (typeof ERROR_SCHEMAS)[number] } }
+			description: string
+		}
+	> = {}
 	for (const code of codes) {
 		const config = ERROR_CONFIGS[code]
 		const schema = ERROR_SCHEMAS[code]

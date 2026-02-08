@@ -73,7 +73,10 @@ describe('auth guard', () => {
 describe('requireRole', () => {
 	it('allows admin to access admin routes', async () => {
 		const app = createRoleApp()
-		const token = await sign({ sub: 'user-1', role: 'admin', exp: Math.floor(Date.now() / 1000) + 3600 }, SECRET)
+		const token = await sign(
+			{ sub: 'user-1', role: 'admin', exp: Math.floor(Date.now() / 1000) + 3600 },
+			SECRET,
+		)
 		const res = await app.request('/admin/users', {
 			headers: { Authorization: `Bearer ${token}` },
 		})
@@ -82,7 +85,10 @@ describe('requireRole', () => {
 
 	it('rejects non-admin from admin routes with 403', async () => {
 		const app = createRoleApp()
-		const token = await sign({ sub: 'user-2', role: 'user', exp: Math.floor(Date.now() / 1000) + 3600 }, SECRET)
+		const token = await sign(
+			{ sub: 'user-2', role: 'user', exp: Math.floor(Date.now() / 1000) + 3600 },
+			SECRET,
+		)
 		const res = await app.request('/admin/users', {
 			headers: { Authorization: `Bearer ${token}` },
 		})
@@ -93,7 +99,10 @@ describe('requireRole', () => {
 
 	it('allows non-admin to access non-admin routes', async () => {
 		const app = createRoleApp()
-		const token = await sign({ sub: 'user-2', role: 'user', exp: Math.floor(Date.now() / 1000) + 3600 }, SECRET)
+		const token = await sign(
+			{ sub: 'user-2', role: 'user', exp: Math.floor(Date.now() / 1000) + 3600 },
+			SECRET,
+		)
 		const res = await app.request('/dashboard', {
 			headers: { Authorization: `Bearer ${token}` },
 		})

@@ -46,9 +46,7 @@ export async function paginatedList<TTable extends PgTableWithColumns<any>>(
 
 	// 2. Compose WHERE
 	const whereCondition =
-		searchCondition && extraWhere
-			? and(searchCondition, extraWhere)
-			: searchCondition || extraWhere
+		searchCondition && extraWhere ? and(searchCondition, extraWhere) : searchCondition || extraWhere
 
 	// 3. Build ORDER BY from whitelist (safe — user string never reaches SQL)
 	const sortKey = query.sort && sortColumns[query.sort] ? query.sort : defaultSort

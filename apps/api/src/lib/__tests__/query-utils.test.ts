@@ -25,7 +25,7 @@ const TEST_USERS = [
 ]
 
 let db: ReturnType<typeof initDb>
-let insertedIds: string[] = []
+const insertedIds: string[] = []
 
 function defaultQuery(overrides: Partial<ListQuery> = {}): ListQuery {
 	return { page: 1, limit: 20, order: 'desc' as const, ...overrides }
@@ -227,7 +227,9 @@ describe('paginatedList', () => {
 	})
 
 	it('sorts by createdAt ascending', async () => {
-		const result = await paginatedUsers(defaultQuery({ sort: 'createdAt', order: 'asc', limit: 100 }))
+		const result = await paginatedUsers(
+			defaultQuery({ sort: 'createdAt', order: 'asc', limit: 100 }),
+		)
 		const timestamps = result.data.map((u) => u.createdAt.getTime())
 		for (let i = 1; i < timestamps.length; i++) {
 			expect(timestamps[i]).toBeGreaterThanOrEqual(timestamps[i - 1])
@@ -235,7 +237,9 @@ describe('paginatedList', () => {
 	})
 
 	it('falls back to defaultSort for invalid sort column', async () => {
-		const resultInvalid = await paginatedUsers(defaultQuery({ sort: 'nonexistent', order: 'desc', limit: 100 }))
+		const resultInvalid = await paginatedUsers(
+			defaultQuery({ sort: 'nonexistent', order: 'desc', limit: 100 }),
+		)
 		const resultDefault = await paginatedUsers(defaultQuery({ order: 'desc', limit: 100 }))
 
 		// Should produce same order (both use createdAt desc)
@@ -257,9 +261,7 @@ describe('paginatedList', () => {
 
 	it('combines search with pagination', async () => {
 		// Search test.local, limit 2 → should have more pages
-		const result = await paginatedUsers(
-			defaultQuery({ search: 'test.local', limit: 2 }),
-		)
+		const result = await paginatedUsers(defaultQuery({ search: 'test.local', limit: 2 }))
 		expect(result.data.length).toBe(2)
 		expect(result.meta.total).toBeGreaterThanOrEqual(5)
 		expect(result.meta.hasMore).toBe(true)

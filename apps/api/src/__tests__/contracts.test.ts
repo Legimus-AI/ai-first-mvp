@@ -41,9 +41,7 @@ const CRUD_SLICES: SliceContract[] = [
 describe('Route contracts', () => {
 	for (const slice of CRUD_SLICES) {
 		describe(slice.name, () => {
-			const ops = crudOperations(slice.basePath).filter(
-				(op) => !slice.exclude?.includes(op.label),
-			)
+			const ops = crudOperations(slice.basePath).filter((op) => !slice.exclude?.includes(op.label))
 
 			it(`has all ${ops.length} required CRUD endpoints`, () => {
 				const { missing } = verifyOpenApiPaths(doc, ops)

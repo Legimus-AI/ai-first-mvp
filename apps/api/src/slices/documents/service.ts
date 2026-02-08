@@ -1,9 +1,4 @@
-import {
-	AppError,
-	type CreateDocument,
-	type ListQuery,
-	type UpdateDocument,
-} from '@repo/shared'
+import { AppError, type CreateDocument, type ListQuery, type UpdateDocument } from '@repo/shared'
 import { eq, inArray } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
 import { paginatedList } from '../../lib/query-utils'
@@ -17,7 +12,11 @@ export async function listDocuments(
 	const { data, meta } = await paginatedList(db, query, {
 		table: documents,
 		searchColumns: [documents.title],
-		sortColumns: { title: documents.title, createdAt: documents.createdAt, updatedAt: documents.updatedAt },
+		sortColumns: {
+			title: documents.title,
+			createdAt: documents.createdAt,
+			updatedAt: documents.updatedAt,
+		},
 		extraWhere: botId ? eq(documents.botId, botId) : undefined,
 	})
 

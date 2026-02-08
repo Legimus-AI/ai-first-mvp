@@ -1,9 +1,4 @@
-import {
-	AppError,
-	type CreateBot,
-	type ListQuery,
-	type UpdateBot,
-} from '@repo/shared'
+import { AppError, type CreateBot, type ListQuery, type UpdateBot } from '@repo/shared'
 import { eq, inArray } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
 import { paginatedList } from '../../lib/query-utils'

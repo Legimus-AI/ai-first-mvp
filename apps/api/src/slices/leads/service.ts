@@ -8,7 +8,13 @@ export async function listLeads(db: ReturnType<typeof getDb>, query: ListQuery, 
 	const { data, meta } = await paginatedList(db, query, {
 		table: leads,
 		searchColumns: [leads.name, leads.email, leads.phone, leads.senderId],
-		sortColumns: { name: leads.name, email: leads.email, phone: leads.phone, senderId: leads.senderId, createdAt: leads.createdAt },
+		sortColumns: {
+			name: leads.name,
+			email: leads.email,
+			phone: leads.phone,
+			senderId: leads.senderId,
+			createdAt: leads.createdAt,
+		},
 		extraWhere: botId ? eq(leads.botId, botId) : undefined,
 	})
 
