@@ -30,3 +30,13 @@ export async function setCachedMessages(
 	const redis = getRedis()
 	await redis.set(`conv:${conversationId}:messages`, JSON.stringify(messages), 'EX', CONTEXT_TTL)
 }
+
+export async function checkRedisHealth(): Promise<boolean> {
+	if (!_redis) return false
+	try {
+		await _redis.ping()
+		return true
+	} catch {
+		return false
+	}
+}

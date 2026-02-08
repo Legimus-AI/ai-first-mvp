@@ -5,6 +5,7 @@ import { AppError } from '@repo/shared'
 import { cors } from 'hono/cors'
 import { secureHeaders } from 'hono/secure-headers'
 import { checkDbHealth } from './db/client'
+import { checkRedisHealth } from './lib/redis'
 import { getAppLogger } from './logger'
 import { authGuard, requireRole } from './middleware/auth'
 import { rateLimiter } from './middleware/rate-limit'
@@ -113,12 +114,11 @@ export function createApp(config: AppConfig = {}): OpenAPIHono {
 	// --- Health ---
 
 	app.get('/health', async (c) => {
-		const dbOk = await checkDbHealth()
+		const [dbOk, redisOk] = await Promise.all([checkDbHealth(), checkRedisHealth()])
 		const uptime = Math.floor(performance.now() / 1000)
-		if (dbOk) {
-			return c.json({ status: 'ok', db: 'ok', uptime })
-		}
-		return c.json({ status: 'degraded', db: 'down', uptime }, 503)
+		const status = dbOk && redisOk ? 'ok' : 'degraded'
+		const statusCode = dbOk ? 200 : 503
+		return c.json({ status, db: dbOk ? 'ok' : 'down', redis: redisOk ? 'ok' : 'down', uptime }, statusCode)
 	})
 
 	// --- Routes ---
