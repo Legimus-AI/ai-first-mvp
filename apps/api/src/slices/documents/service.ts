@@ -3,10 +3,10 @@ import {
 	type CreateDocument,
 	type ListQuery,
 	type UpdateDocument,
-	buildPaginationMeta,
 } from '@repo/shared'
-import { count, eq, ilike, sql } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
+import { paginatedList } from '../../lib/query-utils'
 import { documents } from './schema'
 
 export async function listDocuments(
@@ -14,45 +14,20 @@ export async function listDocuments(
 	botId: string | undefined,
 	query: ListQuery,
 ) {
-	const offset = (query.page - 1) * query.limit
-
-	// Build where conditions
-	const conditions = []
-	if (botId) {
-		conditions.push(eq(documents.botId, botId))
-	}
-	if (query.search) {
-		conditions.push(ilike(documents.title, `%${query.search}%`))
-	}
-
-	const whereCondition =
-		conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined
-
-	// Execute query with pagination
-	const [items, [totalResult]] = await Promise.all([
-		db
-			.select()
-			.from(documents)
-			.where(whereCondition)
-			.orderBy(
-				query.order === 'asc'
-					? sql`${documents[query.sort as keyof typeof documents] || documents.createdAt} ASC`
-					: sql`${documents[query.sort as keyof typeof documents] || documents.createdAt} DESC`,
-			)
-			.offset(offset)
-			.limit(query.limit),
-		db.select({ count: count() }).from(documents).where(whereCondition),
-	])
-
-	const sanitizedItems = items.map((doc) => ({
-		...doc,
-		createdAt: doc.createdAt.toISOString(),
-		updatedAt: doc.updatedAt.toISOString(),
-	}))
+	const { data, meta } = await paginatedList(db, query, {
+		table: documents,
+		searchColumns: [documents.title],
+		sortColumns: { title: documents.title, createdAt: documents.createdAt, updatedAt: documents.updatedAt },
+		extraWhere: botId ? eq(documents.botId, botId) : undefined,
+	})
 
 	return {
-		data: sanitizedItems,
-		meta: buildPaginationMeta(query, Number(totalResult.count)),
+		data: data.map((doc) => ({
+			...doc,
+			createdAt: doc.createdAt.toISOString(),
+			updatedAt: doc.updatedAt.toISOString(),
+		})),
+		meta,
 	}
 }
 

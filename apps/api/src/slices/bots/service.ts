@@ -3,43 +3,26 @@ import {
 	type CreateBot,
 	type ListQuery,
 	type UpdateBot,
-	buildPaginationMeta,
 } from '@repo/shared'
-import { count, eq, ilike, sql } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
+import { paginatedList } from '../../lib/query-utils'
 import { bots } from './schema'
 
 export async function listBots(db: ReturnType<typeof getDb>, query: ListQuery) {
-	const offset = (query.page - 1) * query.limit
-
-	// Build search condition
-	const searchCondition = query.search ? ilike(bots.name, `%${query.search}%`) : undefined
-
-	// Execute query with pagination
-	const [items, [totalResult]] = await Promise.all([
-		db
-			.select()
-			.from(bots)
-			.where(searchCondition)
-			.orderBy(
-				query.order === 'asc'
-					? sql`${bots[query.sort as keyof typeof bots] || bots.createdAt} ASC`
-					: sql`${bots[query.sort as keyof typeof bots] || bots.createdAt} DESC`,
-			)
-			.offset(offset)
-			.limit(query.limit),
-		db.select({ count: count() }).from(bots).where(searchCondition),
-	])
-
-	const sanitizedItems = items.map((bot) => ({
-		...bot,
-		createdAt: bot.createdAt.toISOString(),
-		updatedAt: bot.updatedAt.toISOString(),
-	}))
+	const { data, meta } = await paginatedList(db, query, {
+		table: bots,
+		searchColumns: [bots.name],
+		sortColumns: { name: bots.name, createdAt: bots.createdAt, updatedAt: bots.updatedAt },
+	})
 
 	return {
-		data: sanitizedItems,
-		meta: buildPaginationMeta(query, Number(totalResult.count)),
+		data: data.map((bot) => ({
+			...bot,
+			createdAt: bot.createdAt.toISOString(),
+			updatedAt: bot.updatedAt.toISOString(),
+		})),
+		meta,
 	}
 }
 

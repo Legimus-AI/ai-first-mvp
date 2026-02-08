@@ -8,8 +8,8 @@
 		"./src/*": "./src/*.ts"
 	},
 	"scripts": {
-		"dev": "bun --watch src/main.ts",
-		"start": "bun src/main.ts",
+		"dev": "bun --env-file=../../.env --watch src/main.ts",
+		"start": "bun --env-file=../../.env src/main.ts",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"typecheck": "tsc --noEmit",

@@ -1,7 +1,8 @@
-import { AppError, type ListQuery, buildPaginationMeta } from '@repo/shared'
-import { and, count, eq, sql } from 'drizzle-orm'
+import { AppError, type ListQuery } from '@repo/shared'
+import { and, eq } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
 import { generateChatResponse } from '../../lib/gemini'
+import { paginatedList } from '../../lib/query-utils'
 import { getCachedMessages, setCachedMessages } from '../../lib/redis'
 import { getDocumentsByBotId } from '../documents/service'
 import { conversations, messages } from './schema'
@@ -121,34 +122,20 @@ export async function listConversations(
 	query: ListQuery,
 	botId?: string,
 ) {
-	const offset = (query.page - 1) * query.limit
-
-	const whereCondition = botId ? eq(conversations.botId, botId) : undefined
-
-	const [items, [totalResult]] = await Promise.all([
-		db
-			.select()
-			.from(conversations)
-			.where(whereCondition)
-			.orderBy(
-				query.order === 'asc'
-					? sql`${conversations[query.sort as keyof typeof conversations] || conversations.createdAt} ASC`
-					: sql`${conversations[query.sort as keyof typeof conversations] || conversations.createdAt} DESC`,
-			)
-			.offset(offset)
-			.limit(query.limit),
-		db.select({ count: count() }).from(conversations).where(whereCondition),
-	])
-
-	const sanitizedItems = items.map((conv) => ({
-		...conv,
-		createdAt: conv.createdAt.toISOString(),
-		updatedAt: conv.updatedAt.toISOString(),
-	}))
+	const { data, meta } = await paginatedList(db, query, {
+		table: conversations,
+		searchColumns: [conversations.title, conversations.senderId],
+		sortColumns: { title: conversations.title, senderId: conversations.senderId, createdAt: conversations.createdAt, updatedAt: conversations.updatedAt },
+		extraWhere: botId ? eq(conversations.botId, botId) : undefined,
+	})
 
 	return {
-		data: sanitizedItems,
-		meta: buildPaginationMeta(query, Number(totalResult.count)),
+		data: data.map((conv) => ({
+			...conv,
+			createdAt: conv.createdAt.toISOString(),
+			updatedAt: conv.updatedAt.toISOString(),
+		})),
+		meta,
 	}
 }
 

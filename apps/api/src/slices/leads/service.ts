@@ -1,39 +1,24 @@
-import { AppError, type CreateLead, type ListQuery, buildPaginationMeta } from '@repo/shared'
-import { and, count, eq, sql } from 'drizzle-orm'
+import { AppError, type CreateLead, type ListQuery } from '@repo/shared'
+import { and, eq } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
+import { paginatedList } from '../../lib/query-utils'
 import { leads } from './schema'
 
 export async function listLeads(db: ReturnType<typeof getDb>, query: ListQuery, botId?: string) {
-	const offset = (query.page - 1) * query.limit
-
-	// Build where condition
-	const whereCondition = botId ? eq(leads.botId, botId) : undefined
-
-	// Execute query with pagination
-	const [items, [totalResult]] = await Promise.all([
-		db
-			.select()
-			.from(leads)
-			.where(whereCondition)
-			.orderBy(
-				query.order === 'asc'
-					? sql`${leads[query.sort as keyof typeof leads] || leads.createdAt} ASC`
-					: sql`${leads[query.sort as keyof typeof leads] || leads.createdAt} DESC`,
-			)
-			.offset(offset)
-			.limit(query.limit),
-		db.select({ count: count() }).from(leads).where(whereCondition),
-	])
-
-	const sanitizedItems = items.map((lead) => ({
-		...lead,
-		metadata: lead.metadata as Record<string, unknown> | null,
-		createdAt: lead.createdAt.toISOString(),
-	}))
+	const { data, meta } = await paginatedList(db, query, {
+		table: leads,
+		searchColumns: [leads.name, leads.email, leads.phone, leads.senderId],
+		sortColumns: { name: leads.name, email: leads.email, phone: leads.phone, senderId: leads.senderId, createdAt: leads.createdAt },
+		extraWhere: botId ? eq(leads.botId, botId) : undefined,
+	})
 
 	return {
-		data: sanitizedItems,
-		meta: buildPaginationMeta(query, Number(totalResult.count)),
+		data: data.map((lead) => ({
+			...lead,
+			metadata: lead.metadata as Record<string, unknown> | null,
+			createdAt: lead.createdAt.toISOString(),
+		})),
+		meta,
 	}
 }
 

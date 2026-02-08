@@ -1,42 +1,23 @@
-import { AppError, type ListQuery, type UpdateUser, buildPaginationMeta } from '@repo/shared'
-import { count, eq, ilike, or, sql } from 'drizzle-orm'
+import { AppError, type ListQuery, type UpdateUser } from '@repo/shared'
+import { eq } from 'drizzle-orm'
 import type { getDb } from '../../db/client'
+import { paginatedList } from '../../lib/query-utils'
 import { users } from './schema'
 
 export async function listUsers(db: ReturnType<typeof getDb>, query: ListQuery) {
-	const offset = (query.page - 1) * query.limit
-
-	// Build search condition
-	const searchCondition = query.search
-		? or(ilike(users.name, `%${query.search}%`), ilike(users.email, `%${query.search}%`))
-		: undefined
-
-	// Execute query with pagination
-	const [items, [totalResult]] = await Promise.all([
-		db
-			.select()
-			.from(users)
-			.where(searchCondition)
-			.orderBy(
-				query.order === 'asc'
-					? sql`${users[query.sort as keyof typeof users] || users.createdAt} ASC`
-					: sql`${users[query.sort as keyof typeof users] || users.createdAt} DESC`,
-			)
-			.offset(offset)
-			.limit(query.limit),
-		db.select({ count: count() }).from(users).where(searchCondition),
-	])
-
-	// Remove password hashes from all users
-	const sanitizedItems = items.map(({ passwordHash, ...user }) => ({
-		...user,
-		createdAt: user.createdAt.toISOString(),
-		updatedAt: user.updatedAt.toISOString(),
-	}))
+	const { data, meta } = await paginatedList(db, query, {
+		table: users,
+		searchColumns: [users.name, users.email],
+		sortColumns: { name: users.name, email: users.email, role: users.role, createdAt: users.createdAt, updatedAt: users.updatedAt },
+	})
 
 	return {
-		data: sanitizedItems,
-		meta: buildPaginationMeta(query, Number(totalResult.count)),
+		data: data.map(({ passwordHash, ...user }) => ({
+			...user,
+			createdAt: user.createdAt.toISOString(),
+			updatedAt: user.updatedAt.toISOString(),
+		})),
+		meta,
 	}
 }
 
