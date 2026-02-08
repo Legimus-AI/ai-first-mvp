@@ -14,9 +14,19 @@ export const Route = createFileRoute('/documents/')({
 
 function DocumentsPage() {
 	const [botFilter, setBotFilter] = useState<string>('')
-	const { data, isLoading } = useDocuments(botFilter ? { botId: botFilter } : undefined)
+	const { data, isLoading, isError, error } = useDocuments(
+		botFilter ? { botId: botFilter } : undefined,
+	)
 	const { data: botsData } = useBots()
 	const [isFormOpen, setIsFormOpen] = useState(false)
+
+	if (isError) {
+		return (
+			<div className="flex flex-col items-center justify-center py-12">
+				<p className="text-sm text-destructive">Failed to load documents: {error.message}</p>
+			</div>
+		)
+	}
 
 	return (
 		<div className="p-8">

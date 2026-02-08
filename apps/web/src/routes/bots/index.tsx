@@ -12,8 +12,16 @@ export const Route = createFileRoute('/bots/')({
 })
 
 function BotsPage() {
-	const { data, isLoading } = useBots()
+	const { data, isLoading, isError, error } = useBots()
 	const [isFormOpen, setIsFormOpen] = useState(false)
+
+	if (isError) {
+		return (
+			<div className="flex flex-col items-center justify-center py-12">
+				<p className="text-sm text-destructive">Failed to load bots: {error.message}</p>
+			</div>
+		)
+	}
 
 	return (
 		<div className="p-8">

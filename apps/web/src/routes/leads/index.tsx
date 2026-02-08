@@ -11,8 +11,16 @@ export const Route = createFileRoute('/leads/')({
 
 function LeadsPage() {
 	const [botFilter, setBotFilter] = useState<string>('')
-	const { data, isLoading } = useLeads(botFilter ? { botId: botFilter } : undefined)
+	const { data, isLoading, isError, error } = useLeads(botFilter ? { botId: botFilter } : undefined)
 	const { data: botsData } = useBots()
+
+	if (isError) {
+		return (
+			<div className="flex flex-col items-center justify-center py-12">
+				<p className="text-sm text-destructive">Failed to load leads: {error.message}</p>
+			</div>
+		)
+	}
 
 	return (
 		<div className="p-8">

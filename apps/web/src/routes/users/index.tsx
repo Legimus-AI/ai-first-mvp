@@ -8,7 +8,15 @@ export const Route = createFileRoute('/users/')({
 })
 
 function UsersPage() {
-	const { data, isLoading } = useUsers()
+	const { data, isLoading, isError, error } = useUsers()
+
+	if (isError) {
+		return (
+			<div className="flex flex-col items-center justify-center py-12">
+				<p className="text-sm text-destructive">Failed to load users: {error.message}</p>
+			</div>
+		)
+	}
 
 	return (
 		<div className="p-8">
