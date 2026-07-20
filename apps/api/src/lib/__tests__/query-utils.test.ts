@@ -13,7 +13,10 @@ import { initDb } from '../../db/client'
 import { users } from '../../slices/users/schema'
 import { paginatedList } from '../query-utils'
 
-const TEST_DB_URL = 'postgresql://mvp:mvp@localhost:5433/mvp'
+const TEST_DB_URL = process.env.TEST_DATABASE_URL
+if (!TEST_DB_URL) {
+	throw new Error('TEST_DATABASE_URL is required for database-backed tests')
+}
 
 // Deterministic test data — names are crafted for search/sort verification
 const TEST_USERS = [

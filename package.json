@@ -10,6 +10,7 @@
 		"lint:fix": "biome check --write .",
 		"format": "biome format --write .",
 		"test": "pnpm --filter @repo/shared test && pnpm --filter @repo/api test && pnpm --filter @repo/web test",
+		"test:software": "pnpm --filter @repo/shared test && pnpm --filter @repo/api test:software && pnpm --filter @repo/web test",
 		"test:fast": "pnpm --filter @repo/shared test && pnpm --filter @repo/api test && pnpm --filter @repo/web test",
 		"verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm validate:contracts && pnpm validate:generator",
 		"typecheck": "pnpm -r typecheck",

@@ -12,7 +12,10 @@ import { bots } from '../../bots/schema'
 import { users } from '../../users/schema'
 import { leads } from '../schema'
 
-const TEST_DB_URL = 'postgresql://mvp:mvp@localhost:5433/mvp'
+const TEST_DB_URL = process.env.TEST_DATABASE_URL
+if (!TEST_DB_URL) {
+	throw new Error('TEST_DATABASE_URL is required for database-backed tests')
+}
 const JWT_SECRET = 'test-secret-key'
 
 let db: ReturnType<typeof initDb>

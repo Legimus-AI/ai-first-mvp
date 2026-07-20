@@ -1,5 +1,6 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import {
+	AppError,
 	botSchema,
 	bulkDeleteResponseSchema,
 	bulkDeleteSchema,
@@ -151,7 +152,7 @@ app.openapi(createRoute_, async (c) => {
 	// Get userId from JWT
 	const payload = c.get('jwtPayload')
 	if (!payload || !payload.sub) {
-		throw new Error('JWT payload not found')
+		throw AppError.unauthorized('JWT payload not found')
 	}
 
 	const bot = await createBot(db, data, payload.sub)

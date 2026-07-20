@@ -33,13 +33,19 @@
 
 16. **No `any` types.** Use Zod inference or explicit typing.
 17. **Pre-commit hooks must pass.** `pnpm lint` and `pnpm typecheck` run on every commit via Lefthook.
-18. **Tests are mandatory for new slices.** Every slice needs route integration tests at minimum.
+18. **Tests are admitted by risk.** New behavior needs the smallest executable test set that protects distinct business, security, persistence, recovery, or regression risk. Test count and exhaustive CRUD matrices are not goals.
 
 ## Generator
 
-19. **Generator must match reference slice.** `scripts/generate-slice.sh` output must use the same patterns as the `todos` slice (OpenAPIHono, createRoute, @hono/zod-openapi, Hono RPC). Validated by `scripts/validate-generator.sh` in CI.
+19. **Generator emits one real lifecycle.** `scripts/generate-slice.sh` must generate an executable real-app lifecycle across exposed CRUD operations, authentication, tenant isolation, persistence, and post-delete behavior. It must not generate duplicate per-slice contracts, pending tests, or hollow smoke tests. Validated by `scripts/validate-generator.sh` in CI.
 
 ## Security
 
 20. **No secrets in code.** Environment variables validated at startup via `env.ts`.
 21. **Rate limiting on all routes.** The global rate limiter middleware must not be removed.
+
+## Verification
+
+22. **Global verifiers stay global.** OpenAPI completeness, test discovery, thin typed routes, and service purity live in `apps/api/src/__tests__` and are not copied into each slice.
+23. **Pending tests are forbidden.** `it.todo()`, `test.todo()`, `.skip`, and empty placeholder tests fail architecture verification.
+24. **The DB-free lane is mandatory.** `pnpm test:software` runs on every default pre-push and in CI. CI also runs the full DB-backed suite.

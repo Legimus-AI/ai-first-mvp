@@ -10,7 +10,7 @@ SaaS admin panel for GenAI bots for e-commerce. 6 slices implementing the full B
 
 1. **Boundary Slices** — Each slice is a complete feature: schema + API + UI
 2. **Schema-First** — Zod schemas in `packages/shared` are the single source of truth
-3. **Verifier-First** — Tests are the first deliverable
+3. **Verifier-First** — Admit the smallest executable verifier set that protects real risk
 4. **Agent-Friendly Feedback** — Grepable errors, `pnpm test`, structured logs
 5. **Governance-First** — Biome lint, strict TypeScript, slice isolation, INVARIANTS.md
 6. **Persistent Context** — AGENTS.md, CLAUDE.md, ARCHITECTURE.md per directory
@@ -70,3 +70,4 @@ Widget POST /api/chat/:botId { senderId, message }
 | bcryptjs | Cross-runtime password hashing (not Bun.password) |
 | Public chat routes | Widget doesn't need JWT, uses senderId |
 | Documents as text | Simple context injection. Vector search is a recipe, not infra |
+| Risk-weighted verification | Global static/contract guards plus one real CRUD lifecycle; focused tests only for distinct risk |

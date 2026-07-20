@@ -429,183 +429,140 @@ export function ${SINGULAR_PASCAL}List() {
 }
 TMPL
 
-# --- 6. API route tests (TDD — these FAIL until implemented) ---
+# --- 6. API real-app lifecycle verifier ---
 API_TESTS_DIR="$API_DIR/__tests__"
 mkdir -p "$API_TESTS_DIR"
 cat > "$API_TESTS_DIR/routes.test.ts" << TMPL
+import { sign } from 'hono/jwt'
+import { inArray } from 'drizzle-orm'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createApp } from '../../../app'
-import { getDb, initDb } from '../../../db/client'
+import { closeDb, getDb, initDb } from '../../../db/client'
+import { ${SLICE} } from '../schema'
 
-const TEST_DB_URL =
-	process.env.DATABASE_URL ?? 'postgresql://skeleton:skeleton@localhost:5433/skeleton'
+const TEST_DB_URL = process.env.TEST_DATABASE_URL
+if (!TEST_DB_URL || !new URL(TEST_DB_URL).pathname.slice(1).endsWith('_test')) {
+	throw new Error('TEST_DATABASE_URL must name a dedicated *_test database')
+}
+const JWT_SECRET = 'generated-lifecycle-secret'
+const CREATE_INPUT = { name: 'Lifecycle primary' } satisfies Record<string, unknown>
+const UPDATE_INPUT = { name: 'Lifecycle updated' } satisfies Record<string, unknown>
 
 describe('${SLICE} routes', () => {
 	let app: ReturnType<typeof createApp>
+	let ownerAuthorization: string
+	let otherTenantAuthorization: string
+	const createdIds = new Set<string>()
 
-	beforeAll(() => {
+	beforeAll(async () => {
 		initDb(TEST_DB_URL)
-		app = createApp()
+		app = createApp({ jwtSecret: JWT_SECRET })
+		ownerAuthorization = 'Bearer ' + (await sign({ sub: '11111111-1111-4111-8111-111111111111', role: 'admin' }, JWT_SECRET))
+		otherTenantAuthorization = 'Bearer ' + (await sign({ sub: '22222222-2222-4222-8222-222222222222', role: 'admin' }, JWT_SECRET))
 	})
 
-	// TODO: Implement these tests after wiring routes in app.ts
-
-	it('GET /api/${SLICE} returns paginated list', async () => {
-		const res = await app.request('/api/${SLICE}')
-		expect(res.status).toBe(200)
-		const body = await res.json()
-		expect(body).toHaveProperty('data')
-		expect(body).toHaveProperty('meta')
-		expect(Array.isArray(body.data)).toBe(true)
-	})
-
-	it('POST /api/${SLICE} creates an item', async () => {
-		const res = await app.request('/api/${SLICE}', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ /* TODO: add required fields */ }),
-		})
-		// Should be 201 once implemented
-		expect([201, 400]).toContain(res.status)
-	})
-
-	it('GET /api/${SLICE}/:id returns 400 for invalid UUID', async () => {
-		const res = await app.request('/api/${SLICE}/not-a-uuid')
-		expect(res.status).toBe(400)
-	})
-
-	it('GET /api/${SLICE}/:id returns 404 for non-existent', async () => {
-		const res = await app.request('/api/${SLICE}/00000000-0000-0000-0000-000000000000')
-		expect(res.status).toBe(404)
-		const body = await res.json()
-		expect(body.error.code).toBe('NOT_FOUND')
-	})
-
-	it('DELETE /api/${SLICE}/:id returns 404 for non-existent', async () => {
-		const res = await app.request('/api/${SLICE}/00000000-0000-0000-0000-000000000000', {
-			method: 'DELETE',
-		})
-		expect(res.status).toBe(404)
-	})
-})
-TMPL
-
-# --- 7. Contract test (verifier-first — NO DB required) ---
-cat > "$API_TESTS_DIR/routes.contract.test.ts" << TMPL
-/**
- * Contract test for ${SLICE} — verifier-first architecture.
- * Verifies all required CRUD endpoints exist in OpenAPI spec.
- * NO database needed. Runs in < 1 second.
- *
- * If this test FAILS, it means an endpoint was removed or never implemented.
- * Fix: add the missing route in routes.ts and register in app.ts.
- */
-import { describe, expect, it } from 'vitest'
-import { createApp } from '../../../app'
-import { crudOperations, formatMissing, verifyOpenApiPaths } from '../../../lib/contract-testing'
-
-const app = createApp()
-const doc = app.getOpenAPIDocument({
-	openapi: '3.0.0',
-	info: { title: 'Contract Test', version: '0.0.0' },
-})
-
-describe('${SLICE} route contracts', () => {
-	const ops = crudOperations('/api/${SLICE}')
-
-	it('has all 6 required CRUD endpoints', () => {
-		const { missing } = verifyOpenApiPaths(doc, ops)
-		if (missing.length > 0) {
-			expect.fail(formatMissing('${SLICE}', missing))
+	afterAll(async () => {
+		if (createdIds.size > 0) {
+			await getDb()
+				.delete(${SLICE})
+				.where(inArray(${SLICE}.id, [...createdIds]))
 		}
+		await closeDb()
 	})
 
-	it.each([
-		['LIST', 'get', '/api/${SLICE}'],
-		['GET', 'get', '/api/${SLICE}/{id}'],
-		['CREATE', 'post', '/api/${SLICE}'],
-		['UPDATE', 'patch', '/api/${SLICE}/{id}'],
-		['DELETE', 'delete', '/api/${SLICE}/{id}'],
-		['BULK_DELETE', 'delete', '/api/${SLICE}/bulk'],
-	])('%s endpoint exists (%s %s)', (label, method, path) => {
-		const { missing } = verifyOpenApiPaths(doc, [{ method, path, label }])
-		expect(missing).toHaveLength(0)
+	it('persists the exposed CRUD lifecycle with auth and tenant isolation', async () => {
+		expect((await app.request('/api/${SLICE}')).status).toBe(401)
+
+		const createResponse = await app.request('/api/${SLICE}', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', Authorization: ownerAuthorization },
+			body: JSON.stringify(CREATE_INPUT),
+		})
+		expect(createResponse.status).toBe(201)
+		const primary = await createResponse.json()
+		createdIds.add(primary.id)
+		expect(primary.id).toBeTypeOf('string')
+
+		const bulkTargetResponse = await app.request('/api/${SLICE}', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', Authorization: ownerAuthorization },
+			body: JSON.stringify({ name: 'Lifecycle bulk target' }),
+		})
+		expect(bulkTargetResponse.status).toBe(201)
+		const bulkTarget = await bulkTargetResponse.json()
+		createdIds.add(bulkTarget.id)
+
+		const getResponse = await app.request('/api/${SLICE}/' + primary.id, {
+			headers: { Authorization: ownerAuthorization },
+		})
+		expect(getResponse.status).toBe(200)
+		expect(await getResponse.json()).toEqual(primary)
+
+		const listResponse = await app.request('/api/${SLICE}', {
+			headers: { Authorization: ownerAuthorization },
+		})
+		expect(listResponse.status).toBe(200)
+		const listBody = await listResponse.json()
+		expect(listBody.data.map((item: { id: string }) => item.id)).toEqual(
+			expect.arrayContaining([primary.id, bulkTarget.id]),
+		)
+
+		const updateResponse = await app.request('/api/${SLICE}/' + primary.id, {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json', Authorization: ownerAuthorization },
+			body: JSON.stringify(UPDATE_INPUT),
+		})
+		expect(updateResponse.status).toBe(200)
+		expect(await updateResponse.json()).toMatchObject(UPDATE_INPUT)
+		expect(
+			await (
+				await app.request('/api/${SLICE}/' + primary.id, {
+					headers: { Authorization: ownerAuthorization },
+				})
+			).json()
+		).toMatchObject(UPDATE_INPUT)
+
+		const otherTenantList = await app.request('/api/${SLICE}', {
+			headers: { Authorization: otherTenantAuthorization },
+		})
+		expect(otherTenantList.status).toBe(200)
+		expect((await otherTenantList.json()).data).toHaveLength(0)
+		expect(
+			(
+				await app.request('/api/${SLICE}/' + primary.id, {
+					headers: { Authorization: otherTenantAuthorization },
+				})
+			).status,
+		).toBe(404)
+
+		const bulkDeleteResponse = await app.request('/api/${SLICE}/bulk', {
+			method: 'DELETE',
+			headers: { 'Content-Type': 'application/json', Authorization: ownerAuthorization },
+			body: JSON.stringify({ ids: [bulkTarget.id] }),
+		})
+		expect(bulkDeleteResponse.status).toBe(200)
+		expect((await bulkDeleteResponse.json()).deleted).toBe(1)
+
+		expect(
+			(
+				await app.request('/api/${SLICE}/' + primary.id, {
+					method: 'DELETE',
+					headers: { Authorization: ownerAuthorization },
+				})
+			).status,
+		).toBe(200)
+		const getDeletedResponse = await app.request('/api/${SLICE}/' + primary.id, {
+			headers: { Authorization: ownerAuthorization },
+		})
+		expect(getDeletedResponse.status).toBe(404)
 	})
 })
 TMPL
 
-# --- 8. Integration tests (TDD — complete it.todo() stubs for full CRUD Test Matrix) ---
-cat > "$API_TESTS_DIR/routes.integration.test.ts" << 'TMPL_HEREDOC'
-/**
- * Integration tests for ${SLICE} — verifier-first architecture.
- *
- * Tests against real PostgreSQL (docker-compose).
- * Complete each it.todo() to activate the test.
- *
- * Test IDs follow the standard CRUD Test Matrix from AGENTS.md.
- */
-import type { ListQuery } from '@repo/shared'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { initDb } from '../../../db/client'
-import { ${SLICE} } from '../schema'
-
-const TEST_DB_URL = 'postgresql://mvp:mvp@localhost:5433/mvp'
-
-let db: ReturnType<typeof initDb>
-
-beforeAll(async () => {
-	db = initDb(TEST_DB_URL)
-	// TODO: Insert test data
-})
-
-afterAll(async () => {
-	// TODO: Clean up test data
-})
-
-describe('LIST /api/${SLICE}', () => {
-	it.todo('LIST-01: returns paginated data with default params')
-	it.todo('LIST-02: respects custom page and limit')
-	it.todo('LIST-03: page 2 returns different items than page 1')
-	it.todo('LIST-04: page beyond total returns empty data')
-	it.todo('LIST-05: search is case-insensitive and partial')
-	it.todo('LIST-06: search returns empty for no match')
-	it.todo('LIST-07: filterValue + filterFields targets specific columns')
-	it.todo('LIST-08: filterFields ignores columns not in whitelist')
-	it.todo('LIST-09: sort ascending works for each sortColumn')
-	it.todo('LIST-10: sort descending works for each sortColumn')
-	it.todo('LIST-11: invalid sort column falls back to defaultSort')
-	it.todo('LIST-12: combined search + sort + pagination')
-})
-
-describe('GET /api/${SLICE}/{id}', () => {
-	it.todo('GET-01: returns item by ID')
-	it.todo('GET-02: returns 404 for non-existent ID')
-})
-
-describe('CREATE /api/${SLICE}', () => {
-	it.todo('CREATE-01: creates and returns item (201)')
-	it.todo('CREATE-02: returns 400 for invalid payload')
-})
-
-describe('UPDATE /api/${SLICE}/{id}', () => {
-	it.todo('UPDATE-01: updates and returns item')
-	it.todo('UPDATE-02: returns 404 for non-existent ID')
-	it.todo('UPDATE-03: returns 400 for invalid payload')
-	it.todo('UPDATE-04: partial update only changes specified fields')
-})
-
-describe('DELETE /api/${SLICE}/{id}', () => {
-	it.todo('DELETE-01: deletes item by ID')
-	it.todo('DELETE-02: returns 404 for non-existent ID')
-})
-
-describe('DELETE /api/${SLICE}/bulk', () => {
-	it.todo('BULK-01: deletes multiple items')
-})
-TMPL_HEREDOC
-
-# Now replace placeholders in the integration test
-sed -i "" "s/\${SLICE}/${SLICE}/g" "$API_TESTS_DIR/routes.integration.test.ts"
+pnpm exec biome check --write --unsafe \
+	"packages/shared/src/slices/$SLICE" \
+	"apps/api/src/slices/$SLICE" \
+	"apps/web/src/slices/$SLICE" >/dev/null
 
 echo ""
 echo "Slice '$SLICE' generated (entity: $SINGULAR). Next steps:"
@@ -617,7 +574,7 @@ echo "  5. Implement:            apps/api/src/slices/$SLICE/service.ts"
 echo "  6. Register route:       apps/api/src/app.ts → app.route('/api/$SLICE', ${SLICE}Routes)"
 echo "  7. Build UI:             apps/web/src/slices/$SLICE/components/"
 echo "  8. Run:                  pnpm db:generate && pnpm db:migrate"
-echo "  9. Complete tests:       apps/api/src/slices/$SLICE/__tests__/routes.test.ts"
-echo " 10. Complete integration: apps/api/src/slices/$SLICE/__tests__/routes.integration.test.ts (it.todo → it)"
+echo "  9. Review risk verifier: apps/api/src/slices/$SLICE/__tests__/routes.test.ts"
+echo " 10. Keep auth and tenant scoping wired through routes and services"
 echo " 11. Contracts:            pnpm validate:contracts (runs automatically in pnpm verify)"
-echo " 12. Verify:               pnpm verify"
+echo " 12. Verify:               TEST_DATABASE_URL=... pnpm verify"

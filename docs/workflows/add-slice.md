@@ -55,7 +55,7 @@ Edit `apps/api/src/app.ts`:
 Edit `apps/api/src/slices/<name>/__tests__/routes.test.ts`:
 - Update the POST test with required fields
 - Add additional tests for your business logic
-- Follow `todos/__tests__/routes.test.ts` as reference
+- Complete the generated real-app lifecycle and add focused tests only for distinct risk
 
 ### 7. Build the UI
 
@@ -67,10 +67,12 @@ Edit `apps/web/src/slices/<name>/components/<name>-list.tsx`:
 ### 8. Verify everything
 
 ```bash
-pnpm verify
+TEST_DATABASE_URL=postgresql://... pnpm verify
 ```
 
-This runs: lint → typecheck → tests → generator validation. **All must pass.**
+Use a disposable test database. This runs lint, typecheck, DB-backed tests, contract
+verification, and generator validation. For the DB-free feedback loop, run
+`pnpm test:software`.
 
 ## Definition of Done
 
@@ -78,9 +80,9 @@ This runs: lint → typecheck → tests → generator validation. **All must pas
 - [ ] DB table created with migration
 - [ ] Service functions implemented (CRUD + pagination)
 - [ ] Routes registered in `app.ts` with OpenAPI contracts
-- [ ] Route tests passing (at minimum: list, create, get, 404, delete)
+- [ ] Generated lifecycle protects auth, exposed CRUD, persistence, tenant isolation, and post-delete
 - [ ] UI component renders data with theme tokens
-- [ ] `pnpm verify` passes
+- [ ] `TEST_DATABASE_URL=... pnpm verify` passes against a disposable database
 - [ ] OpenAPI spec at `/doc` includes new endpoints
 - [ ] Swagger UI at `/ui` shows new endpoints
 
